@@ -14,6 +14,8 @@ const FileReadInputSchema = z.object({
   limit: z.number().optional().describe('读取行数限制（默认 2000 行）'),
 });
 
+// 注意：已移除 file_paths 参数，因为 Qwen 模型不支持数组参数格式
+
 /**
  * 文件读取工具
  * 
@@ -26,12 +28,10 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
 
 **使用方式：**
 1. 单文件：file_read(file_path="pet.py")
-2. 批量读取：file_read(file_paths=["pet.py", "main.py"])
 3. 大文件分块：file_read(file_path="large.py", offset=1, limit=500)
 
 **参数说明：**
 - file_path: 单个文件路径
-- file_paths: 多个文件路径数组
 - offset: 起始行号（从 1 开始）
 - limit: 读取行数限制（默认 2000）
 - maxLines: 每个文件最大行数（默认 1000）
@@ -63,10 +63,10 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
    * 执行文件读取
    */
   async execute(input: z.infer<typeof FileReadInputSchema>): Promise<ToolResult> {
-    const { file_path, file_paths, maxLines = 1000, offset = 1, limit = 2000 } = input;
+    const { file_path, maxLines = 1000, offset = 1, limit = 2000 } = input;
 
-    // 支持批量读取
-    const filesToRead = file_paths || (file_path ? [file_path] : []);
+    // 单文件读取（已移除批量读取支持，因为 Qwen 模型不支持数组参数）
+    const filesToRead = file_path ? [file_path] : [];
     
     // 检查必要参数
     if (filesToRead.length === 0) {
@@ -76,7 +76,6 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
 
 **正确使用方式：**
 1. 单文件：file_read(file_path="pet.py")
-2. 批量读取：file_read(file_paths=["pet.py", "main.py"])
 3. 大文件分块：file_read(file_path="large.py", offset=1, limit=500)`,
 
         error: 'Missing file_path parameter',
