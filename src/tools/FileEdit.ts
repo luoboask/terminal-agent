@@ -140,17 +140,56 @@ ${similarLines ? `找到相似的行：\n${similarLines}` : ''}`,
       // 写入文件
       writeFileSync(file_path, newContent, 'utf-8');
 
-      // 生成摘要
+      // 生成详细摘要
       const oldLines = oldText.split('\n').length;
       const newLines = newText.split('\n').length;
       const lineNum = content.slice(0, matchIndex).split('\n').length;
+      
+      // 计算变更统计
+      const addedLines = Math.max(0, newLines - oldLines);
+      const removedLines = Math.max(0, oldLines - newLines);
+      const changedLines = Math.min(oldLines, newLines);
+      
+      // 生成变更摘要（中文）
+      let summary = `✅ 文件编辑成功\n\n`;
+      summary += `📁 文件：${file_path}\n`;
+      summary += `📍 位置：第 ${lineNum} 行\n`;
+      summary += `📊 变更：`;
+      
+      if (addedLines > 0 && removedLines > 0) {
+        summary += `替换 ${changedLines} 行，新增 ${addedLines} 行，删除 ${removedLines} 行\n`;
+      } else if (addedLines > 0) {
+        summary += `新增 ${addedLines} 行\n`;
+      } else if (removedLines > 0) {
+        summary += `删除 ${removedLines} 行\n`;
+      } else {
+        summary += `修改 ${changedLines} 行\n`;
+      }
+      
+      summary += `\n变更前 (前 3 行):\n`;
+      const oldPreview = oldText.split('\n').slice(0, 3).map(l => `  ${l}`).join('\n');
+      summary += `${oldPreview}\n`;
+      
+      summary += `\n变更后 (前 3 行):\n`;
+      const newPreview = newText.split('\n').slice(0, 3).map(l => `  ${l}`).join('\n');
+      summary += `${newPreview}\n`;
+      
+      // 如果有测试文件，建议运行测试
+      const testFiles = [
+        `${file_path.replace('.py', '_test.py')}`,
+        `${file_path.replace('.py', '.test.py')}`,
+        `tests/${file_path.split('/').pop()?.replace('.py', '_test.py')}`,
+      ];
+      
+      const hasTest = testFiles.some(tf => existsSync(tf));
+      if (hasTest) {
+        summary += `\n💡 建议：运行测试验证修改\n`;
+        summary += `   运行：python ${testFiles.find(tf => existsSync(tf))}\n`;
+      }
 
       return {
         success: true,
-        content: `Successfully edited ${file_path}:\n` +
-                 `- Line ${lineNum}: replaced ${oldLines} lines with ${newLines} lines\n` +
-                 `- Old: ${oldText.slice(0, 50)}${oldText.length > 50 ? '...' : ''}\n` +
-                 `- New: ${newText.slice(0, 50)}${newText.length > 50 ? '...' : ''}`,
+        content: summary,
       };
     } catch (err) {
       const error = err as Error;
