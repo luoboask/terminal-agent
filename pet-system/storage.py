@@ -24,10 +24,17 @@ class PetStorage:
         保存宠物数据
         
         Args:
-            pet: Pet 对象
+            pet: Pet 对象或字典
         """
         try:
-            pet_data = pet.to_dict()
+            # 支持 Pet 对象和字典两种格式
+            if isinstance(pet, dict):
+                pet_data = pet
+            elif hasattr(pet, 'to_dict'):
+                pet_data = pet.to_dict()
+            else:
+                raise TypeError("pet 必须是 Pet 对象或字典")
+            
             with open(self.save_path, 'w', encoding='utf-8') as f:
                 json.dump(pet_data, f, indent=2, ensure_ascii=False, default=str)
             return True
