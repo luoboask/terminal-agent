@@ -192,6 +192,46 @@ importSession(json): Session | null
 
 **优先级：** 会话 > 项目 > 全局
 
+## 🔄 跨项目恢复
+
+### 从其他项目加载会话
+
+```typescript
+import { loadSession } from './src/utils/sessionStorage.js';
+
+// 从指定项目加载会话
+const session = loadSession('session_xxx', '/other/project');
+```
+
+### 跨项目恢复会话
+
+```typescript
+import { resumeSession } from './src/utils/sessionStorage.js';
+
+// 从项目 A 恢复到项目 B
+const session = resumeSession(
+  'session_xxx',
+  '/project-a',  // 源项目
+  '/project-b'   // 目标项目（可选，默认当前项目）
+);
+
+// 会话元数据会包含恢复信息
+console.log(session.metadata.originalProject);  // /project-a
+console.log(session.metadata.resumedAt);        // 恢复时间
+```
+
+### 使用场景
+
+1. **多项目切换** - 在不同项目间继续之前的工作
+2. **会话共享** - 团队成员共享会话
+3. **项目迁移** - 将旧项目会话迁移到新项目
+
+### 注意事项
+
+- 跨项目恢复会复制会话文件，不是移动
+- 原始会话保持不变
+- 元数据会记录恢复信息
+
 ## 💡 最佳实践
 
 ### 1. 项目身份稳定
