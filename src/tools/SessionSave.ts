@@ -4,7 +4,7 @@
 
 import { z } from 'zod';
 import { BaseTool, ToolResult } from '../core/Tool.js';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const SessionSaveInputSchema = z.object({
@@ -22,8 +22,24 @@ export class SessionSaveTool extends BaseTool<Input> {
     const { filename = 'session-history.json' } = input;
 
     try {
-      // 获取会话历史（从 QueryEngine 实例）
-      const history = (global as any).__queryEngine?.getHistory() || [];
+      // 从自动保存文件读取会话历史
+      const saveDir = join(process.cwd(), '.source-deploy');
+      const currentSessionFile = join(saveDir, 'current-session.json');
+      
+      if (!existsSync(currentSessionFile)) {
+        return {
+          success: false,
+          content: `❌ 会话文件未找到
+
+📁 文件路径：${currentSessionFile}
+
+💡 提示：当前没有自动保存的会话，请先进行一些对话`,
+          error: 'Session file not found',
+        };
+      }
+      
+      const currentData = JSON.parse(readFileSync(currentSessionFile, 'utf-8'));
+      const history = currentData.messages || [];
       
       if (history.length === 0) {
         return {
@@ -36,7 +52,6 @@ export class SessionSaveTool extends BaseTool<Input> {
       }
 
       // 确保目录存在
-      const saveDir = join(process.cwd(), '.source-deploy');
       if (!existsSync(saveDir)) {
         mkdirSync(saveDir, { recursive: true });
       }
@@ -47,6 +62,7 @@ export class SessionSaveTool extends BaseTool<Input> {
         timestamp: new Date().toISOString(),
         messageCount: history.length,
         messages: history,
+        source: currentSessionFile,
       };
       
       writeFileSync(filePath, JSON.stringify(saveData, null, 2), 'utf-8');
