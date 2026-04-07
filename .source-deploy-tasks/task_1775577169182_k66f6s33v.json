@@ -1,0 +1,15 @@
+{
+  "id": "task_1775577169182_k66f6s33v",
+  "description": "这是一个测试任务，用于验证任务创建功能",
+  "priority": "medium",
+  "dueDate": null,
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": [],
+  "metadata": {},
+  "createdAt": "2026-04-07T15:52:49.182Z",
+  "completedAt": "2026-04-07T15:53:36.428Z",
+  "summary": "测试任务已完成，验证了任务创建功能正常工作",
+  "deliverables": [],
+  "archived": true
+}
