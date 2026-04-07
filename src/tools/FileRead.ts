@@ -117,6 +117,19 @@ file_read(file_path="pet-system/pet.py")`,
     }
 
     try {
+      // 检查文件缓存
+      const fileCache = (global as any).__fileCache || {};
+      const cacheKey = `${file_path}:${offset}:${limit}`;
+      
+      if (fileCache[cacheKey]) {
+        debug(`FileRead cache hit: ${file_path}`);
+        return {
+          success: true,
+          content: `📖 文件内容（从缓存读取）\n\n${fileCache[cacheKey]}`,
+          data: { cached: true },
+        };
+      }
+
       const stats = statSync(file_path);
 
       // 检查是否是文件
@@ -138,13 +151,7 @@ file_read(file_path="pet-system/pet.py")`,
 📏 大小：${formatBytes(stats.size)}
 📊 限制：${formatBytes(this.MAX_FILE_SIZE)}
 
-💡 请使用 offset 和 limit 参数分块读取：
-- offset: 起始行号（从 1 开始）
-- limit: 读取行数（默认 2000）
-
-示例：
-file_read({ file_path: "${file_path}", offset: 1, limit: 2000 })
-file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
+💡 请使用 offset 和 limit 参数分块读取`,
           error: `File too large (${formatBytes(stats.size)}). Max size is ${formatBytes(this.MAX_FILE_SIZE)}. Use offset and limit to read in chunks.`,
         };
       }
@@ -161,6 +168,13 @@ file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
 
       const result = selectedLines.join('\n');
       const totalLines = lines.length;
+      
+      // 缓存文件内容
+      if (!fileCache[cacheKey]) {
+        (global as any).__fileCache = fileCache;
+        fileCache[cacheKey] = result;
+        debug(`FileRead cache saved: ${file_path}`);
+      }
       
       // 大文件显示预览，小文件显示完整内容
       if (totalLines > 50) {

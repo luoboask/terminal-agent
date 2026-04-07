@@ -104,3 +104,4 @@ export const ALL_TOOLS = [
 ] as const;
 
 export type ToolName = typeof ALL_TOOLS[number];
+export { FileCacheTool } from './FileCache.js';

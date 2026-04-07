@@ -39,6 +39,7 @@ import {
   AskUserTool,
   SessionSaveTool,
   SessionLoadTool,
+  FileCacheTool,
   ProjectSummaryTool,
   ListMcpResourcesTool,
   MCPTool,
@@ -167,6 +168,7 @@ function createToolRegistry(): ToolRegistry {
   registry.register(new AskUserTool());
   registry.register(new SessionSaveTool());
   registry.register(new SessionLoadTool());
+  registry.register(new FileCacheTool());
   registry.register(new ProjectSummaryTool());
   
   return registry;
