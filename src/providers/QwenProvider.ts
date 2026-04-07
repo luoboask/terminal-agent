@@ -121,7 +121,8 @@ export class QwenProvider {
         messages,
         temperature,
         max_tokens: maxTokens,
-        ...(tools && tools.length > 0 ? { tools, tool_choice: 'required' } : {}),
+        ...(tools && tools.length > 0 ? { tools } : {}),
+        // Qwen API 不支持 tool_choice: 'required'，使用 auto 或不设置
       }),
     });
 
