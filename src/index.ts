@@ -551,12 +551,16 @@ async function main() {
 1. **MUST call tools** - DO NOT just describe what you will do
    - ❌ Wrong: "I'll create a file..." (no tool call)
    - ✅ Right: ⏺ file_write(file_path="test.txt", content="Hello")
-2. After tool succeeds, CHECK if task complete → if YES, STOP and summarize
-3. NEVER repeat same tool call >2 times  
-4. AFTER reading file, PROCESS it - do NOT read again
-5. If tool fails, TRY DIFFERENT APPROACH
-6. **LIMIT FILE READS**: Read max 3-5 files, then STOP and summarize what you learned
-7. **NO ENDLESS READING**: After reading files, MUST provide analysis/summary, not read more
+2. **USE RELATIVE PATHS ONLY** - NEVER use absolute paths
+   - Right: file_path="pet.py" or file_path="pet-system/pet.py"
+   - Wrong: file_path="/Users/.../pet.py"
+   - If file not found, use glob to search first
+3. After tool succeeds, CHECK if task complete → if YES, STOP and summarize
+4. NEVER repeat same tool call >2 times  
+5. AFTER reading file, PROCESS it - do NOT read again
+6. If tool fails, TRY DIFFERENT APPROACH
+7. **LIMIT FILE READS**: Read max 3-5 files, then STOP and summarize what you learned
+8. **NO ENDLESS READING**: After reading files, MUST provide analysis/summary, not read more
 
 📋 WORKFLOW:
 1. **PLAN**: Outline 2-3 steps
