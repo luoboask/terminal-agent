@@ -169,7 +169,7 @@ export class QwenProvider {
    */
   extractToolCallsFromText(text: string): ToolCall[] {
     const toolCalls: ToolCall[] = [];
-    const toolCallRegex = /⏺\s*(\w+)\(([^)]*)\)/g;
+    const toolCallRegex = /⏺\s*(\w+)\(([\s\S]*?)\)(?=\s*(?:⏺|$|\n))/g;
     let match;
     
     while ((match = toolCallRegex.exec(text)) !== null) {
