@@ -8,8 +8,9 @@ import { formatBytes } from '../utils/helpers.js';
  * 文件读取工具输入 Schema
  */
 const FileReadInputSchema = z.object({
-  file_path: z.string().describe('要读取的文件路径'),
-  maxLines: z.number().optional().describe('最大读取行数（默认 1000）'),
+  file_path: z.string().describe('要读取的文件路径（单个文件时使用）'),
+  file_paths: z.array(z.string()).optional().describe('要读取的多个文件路径列表（批量读取时使用）'),
+  maxLines: z.number().optional().describe('每个文件最大读取行数（默认 1000）'),
   offset: z.number().optional().describe('起始行号（从 1 开始，默认从开头读取）'),
   limit: z.number().optional().describe('读取行数限制（默认 2000 行）'),
 });
@@ -49,12 +50,43 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
    * 执行文件读取
    */
   async execute(input: z.infer<typeof FileReadInputSchema>): Promise<ToolResult> {
-    const { file_path, maxLines = 1000, offset = 1 } = input;
+    const { file_path, file_paths, maxLines = 1000, offset = 1, limit = 2000 } = input;
 
-    debug(`FileRead reading: ${file_path}`);
+    // 支持批量读取
+    const filesToRead = file_paths || (file_path ? [file_path] : []);
+    
+    // 检查必要参数
+    if (filesToRead.length === 0) {
+      return {
+        success: false,
+        content: '❌ 缺少文件路径参数\n\n请提供 file_path 或 file_paths 参数',
+        error: 'Missing file_path parameter',
+      };
+    }
+
+    // 批量读取多个文件
+    if (filesToRead.length > 1) {
+      const results: string[] = [];
+      for (const filePath of filesToRead) {
+        const result = await this.readSingleFile(filePath, maxLines, offset, limit);
+        if (result.success) {
+          results.push(`📄 ${filePath}:\n${result.content}`);
+        } else {
+          results.push(`❌ ${filePath}: ${result.error}`);
+        }
+      }
+      return {
+        success: true,
+        content: results.join('\n\n---\n\n'),
+      };
+    }
+
+    // 单个文件读取
+    const filePath = filesToRead[0];
+    debug(`FileRead reading: ${filePath}`);
 
     // 安全检查
-    if (!this.isSafePath(file_path)) {
+    if (!this.isSafePath(filePath)) {
       return {
         success: false,
         content: `❌ 访问被拒绝
