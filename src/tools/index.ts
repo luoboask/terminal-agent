@@ -48,6 +48,7 @@ export { GitDiffTool } from './GitDiff.js';
 export { TodoWriteTool } from './TodoWrite.js';
 export { WebSearchTool } from './WebSearch.js';
 export { AskUserTool } from './AskUser.js';
+export { ProjectSummaryTool } from './ProjectSummary.js';
 
 // 工具元数据
 export const TOOL_CATEGORIES = {
@@ -97,6 +98,7 @@ export const ALL_TOOLS = [
   'mcp',
   'read_mcp_resource',
   'lsp',
+  'project_summary',
 ] as const;
 
 export type ToolName = typeof ALL_TOOLS[number];

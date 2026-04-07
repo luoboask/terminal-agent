@@ -37,6 +37,7 @@ import {
   TodoWriteTool,
   WebSearchTool,
   AskUserTool,
+  ProjectSummaryTool,
   ListMcpResourcesTool,
   MCPTool,
   WebFetchTool,
@@ -162,6 +163,7 @@ function createToolRegistry(): ToolRegistry {
   registry.register(new TodoWriteTool());
   registry.register(new WebSearchTool());
   registry.register(new AskUserTool());
+  registry.register(new ProjectSummaryTool());
   
   return registry;
 }
