@@ -43,13 +43,14 @@ export { ReadMcpResourceTool } from './ReadMcpResource.js';
 export { LSPTool } from './LSP.js';
 export { ListMcpResourcesTool } from './ListMcpResources.js';
 export { MCPTool } from './MCPTool.js';
+export { WorktreeTool } from './WorktreeTool.js';
 
 // 工具元数据
 export const TOOL_CATEGORIES = {
   FILE_OPERATIONS: ['file_read', 'file_write', 'file_edit', 'file_delete', 'directory_create'],
   SEARCH: ['grep', 'glob'],
   EXECUTION: ['bash'],
-  VERSION_CONTROL: ['git_diff'],
+  VERSION_CONTROL: ['git_diff', 'worktree'],
   TASK_MANAGEMENT: ['todo_write', 'task_create', 'task_update', 'task_get', 'task_list', 'task_stop', 'task_output', 'task_complete', 'task_delete'],
   WEB: ['web_search', 'web_fetch'],
   INTERACTION: ['ask_user', 'ask_user_question', 'send_message'],
@@ -70,6 +71,7 @@ export const ALL_TOOLS = [
   'grep',
   'glob',
   'git_diff',
+  'worktree',
   'todo_write',
   'task_create',
   'task_update',
