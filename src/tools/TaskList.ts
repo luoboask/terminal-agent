@@ -71,24 +71,24 @@ export class TaskListTool extends BaseTool<typeof TaskListInputSchema> {
         return { success: true, content: output, data: { groups, total: tasks.length } };
       }
 
-      // 普通列表
-      let output = `📋 **任务列表**\n\n`;
+      // 简洁输出：类似 claude-code-learning 格式
       if (tasks.length === 0) {
-        output += `暂无任务\n\n`;
-        output += `💡 **提示**: 使用 \`task_create\` 创建新任务`;
-      } else {
-        tasks.forEach((task: any) => {
-          const statusEmoji = this.getStatusEmoji(task.status);
-          const priorityEmoji = this.getPriorityEmoji(task.priority);
-          output += `${statusEmoji} ${priorityEmoji} #${task.id}: ${task.subject}\n`;
-        });
-
-        if (truncated) {
-          output += `\n… 还有更多任务（已显示前${limit}个）`;
-        }
+        return { success: true, content: 'No tasks found', data: { tasks: [], total: 0 } };
       }
-
-      return { success: true, content: output, data: { tasks, total: tasks.length } };
+      
+      const lines = tasks.map((task: any) => {
+        const statusIcon = this.getStatusEmoji(task.status);
+        const priorityIcon = this.getPriorityEmoji(task.priority);
+        return `${statusIcon} ${priorityIcon} #${task.id}: ${task.subject}`;
+      });
+      
+      let content = lines.join('\n');
+      
+      if (truncated) {
+        content += `\n… (+${tasks.length - limit} more)`;
+      }
+      
+      return { success: true, content, data: { tasks, total: tasks.length } };
     } catch (error) {
       const err = error as Error;
       return {
