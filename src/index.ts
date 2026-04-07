@@ -564,7 +564,12 @@ async function main() {
 3. **USE RELATIVE PATHS ONLY** - NEVER use absolute paths
    - Right: file_path="pet.py" or file_path="pet-system/pet.py"
    - Wrong: file_path="/Users/.../pet.py"
-3. After tool succeeds, CHECK if task complete → if YES, STOP and summarize
+4. **PROVIDE DETAILED RESPONSES** - Always provide detailed, helpful responses
+   - Explain what you're doing and why
+   - Provide context and background information
+   - Include code examples when relevant
+   - Don't be too brief - users need detailed explanations
+5. After tool succeeds, CHECK if task complete → if YES, STOP and summarize
 4. NEVER repeat same tool call >2 times  
 5. AFTER reading file, PROCESS it - do NOT read again
 6. If tool fails, TRY DIFFERENT APPROACH

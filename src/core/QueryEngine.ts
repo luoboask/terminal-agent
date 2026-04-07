@@ -55,7 +55,7 @@ export class QueryEngine {
     this.config = {
       ...config,
       model: config.model || 'qwen3.5-plus',
-      maxTokens: config.maxTokens || 4096,
+      maxTokens: config.maxTokens || 8192,  // 增加到 8192，支持更长回复
       cwd: config.cwd || process.cwd(),
     };
 
