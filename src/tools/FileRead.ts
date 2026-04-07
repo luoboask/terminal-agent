@@ -123,18 +123,8 @@ file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
       const selectedLines = lines.slice(startIndex, endIndex);
 
       const result = selectedLines.join('\n');
-      const totalLines = lines.length;
-
-      let output = result;
       
-      if (endIndex < totalLines) {
-        output += `\n\n[... 还有 ${totalLines - endIndex} 行未显示，使用 offset=${endIndex + 1} 继续读取 ...]`;
-      }
-
-      // 直接返回文件内容
       // 大文件显示预览，小文件显示完整内容
-      const totalLines = lines.length;
-      
       if (totalLines > 50) {
         // 大文件显示预览
         const preview = lines.slice(0, 30).join('\n');
@@ -144,6 +134,10 @@ file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
         };
       } else {
         // 小文件显示完整内容
+        let output = result;
+        if (endIndex < totalLines) {
+          output += `\n\n[... 还有 ${totalLines - endIndex} 行未显示，使用 offset=${endIndex + 1} 继续读取 ...]`;
+        }
         return {
           success: true,
           content: output,
