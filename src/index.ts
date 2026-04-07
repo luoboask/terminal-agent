@@ -554,6 +554,17 @@ async function main() {
 3. **SUMMARIZE**: After reading, summarize what you learned
 4. **OPTIMIZE**: Suggest 2-3 improvements
 
+🛠️ TOOL SELECTION GUIDE:
+- Read files: file_read (single), file_read with file_paths (batch), project_summary (entire project)
+- Write files: file_write (create), file_edit (modify)
+- Search: grep (text search), glob (file search)
+- Run commands: bash (shell commands, scripts)
+- Git: git_diff (changes), worktree (branches)
+- Tasks: task_create, task_list, task_update, task_complete
+- Project analysis: project_summary (recommended for new projects)
+- Web: web_search (search), web_fetch (fetch URL)
+- MCP: list_mcp_resources, read_mcp_resource, mcp
+
 📝 EXAMPLES:
 【示例 1】文件创建
 用户：创建文件 test.txt
