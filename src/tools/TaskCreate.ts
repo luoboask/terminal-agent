@@ -6,7 +6,7 @@
 
 import { z } from 'zod';
 import { BaseTool, ToolResult } from '../core/Tool.js';
-import { createTask } from '../utils/taskStorage.js';
+import { createTask, loadTasks } from '../utils/taskStorage.js';
 
 const TaskCreateInputSchema = z.object({
   title: z.string().describe('任务标题'),
@@ -28,6 +28,29 @@ export class TaskCreateTool extends BaseTool<typeof TaskCreateInputSchema> {
     const { title, subject, description, priority = 'medium', dueDate, metadata } = input;
 
     try {
+      // 检查是否有重复任务（相同标题且未完成）
+      const tasks = loadTasks();
+      const similarTask = tasks.find(t => 
+        t.title === title && 
+        !['completed', 'failed'].includes(t.status)
+      );
+      
+      if (similarTask) {
+        return {
+          success: false,
+          content: `⚠️ 任务已存在
+
+相似任务：
+📋 ID: ${similarTask.id}
+📝 标题：${similarTask.title}
+📊 状态：${similarTask.status}
+🕐 创建：${similarTask.createdAt}
+
+该任务已在进行中，无需重复创建。`,
+          error: 'Duplicate task',
+        };
+      }
+
       // 创建任务对象
       const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const createdAt = new Date().toISOString();
