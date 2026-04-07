@@ -132,10 +132,23 @@ file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
       }
 
       // 直接返回文件内容
-      return {
-        success: true,
-        content: output,
-      };
+      // 大文件显示预览，小文件显示完整内容
+      const totalLines = lines.length;
+      
+      if (totalLines > 50) {
+        // 大文件显示预览
+        const preview = lines.slice(0, 30).join('\n');
+        return {
+          success: true,
+          content: `📖 文件预览 (${totalLines} 行)\n\n${preview}\n\n… (+${totalLines - 30} more lines)`,
+        };
+      } else {
+        // 小文件显示完整内容
+        return {
+          success: true,
+          content: output,
+        };
+      }
     } catch (err) {
       const error = err as Error;
       warn(`FileRead failed for ${file_path}:`, error.message);

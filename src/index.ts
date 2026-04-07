@@ -327,16 +327,21 @@ async function runRepl(engine: QueryEngine): Promise<void> {
               // 工具完成后，继续显示 loading（因为大模型可能还在思考）
               // loading 会在收到第一个 text chunk 时停止
               
-              // 使用导入的 cleanMarkdownSimple 函数
-              
-              // 直接显示工具返回的内容（工具已经格式化好了）
-              const resultLines = content.split('\n');
-              resultLines.forEach(line => {
-                const cleanLine = cleanMarkdownSimple(line.replace(/`/g, '').trim());
-                if (cleanLine) {
-                  console.log(` ${cleanLine}`);
-                }
-              });
+              // 直接显示工具返回的内容
+              // 对于 FileRead，保留原始格式（包括 markdown）
+              if (resultToolName === 'file_read') {
+                // FileRead: 直接显示内容，保留 markdown 格式
+                console.log(content);
+              } else {
+                // 其他工具：清理 markdown 格式
+                const resultLines = content.split('\n');
+                resultLines.forEach(line => {
+                  const cleanLine = cleanMarkdownSimple(line.replace(/`/g, '').trim());
+                  if (cleanLine) {
+                    console.log(` ${cleanLine}`);
+                  }
+                });
+              }
               console.log();
               break;
             case 'error':
