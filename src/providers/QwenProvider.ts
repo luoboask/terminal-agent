@@ -133,81 +133,24 @@ export class QwenProvider {
     const data = QwenResponseSchema.parse(await response.json());
     const message = data.choices[0].message;
 
-    // 解析工具调用（优化：直接提取关键参数）
+    // AI 执行模式：从文本响应中解析工具调用
     const toolCalls: ToolCall[] = [];
+    
+    // 1. 尝试从 tool_calls 字段获取
     if (message.tool_calls?.length) {
       for (const tc of message.tool_calls) {
         try {
-          toolCalls.push({
-            id: tc.id,
-            name: tc.function.name,
-            arguments: JSON.parse(tc.function.arguments),
-          });
-        } catch {
-          // 大文件内容解析失败时，直接提取关键参数
-          const raw = tc.function.arguments;
-          const args: any = {};
-          
-          // 提取常见参数
-          const pathMatch = raw.match(/"file_path"\s*:\s*"([^"]+)"/);
-          const dirPathMatch = raw.match(/"directory_path"\s*:\s*"([^"]+)"/);
-          const contentMatch = raw.match(/"content"\s*:\s*"((?:[^"\\]|\\.)*)"/);
-          
-          if (pathMatch) args.file_path = pathMatch[1];
-          if (dirPathMatch) args.directory_path = dirPathMatch[1];
-          
-          // 大文件处理：自动持久化 + 分块提示
-          if (contentMatch) {
-            const content = contentMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n');
-            const MAX_CONTENT_LENGTH = 25000; // 25KB 阈值
-            
-            if (content.length > MAX_CONTENT_LENGTH) {
-              // 内容过大，自动持久化到临时文件
-              const fs = await import('fs/promises');
-              const path = await import('path');
-              const tempDir = path.join(process.cwd(), '.source-deploy-temp');
-              await fs.mkdir(tempDir, { recursive: true });
-              
-              const tempFile = path.join(tempDir, `large_content_${Date.now()}.txt`);
-              await fs.writeFile(tempFile, content, 'utf-8');
-              
-              // 添加智能提示，告诉模型使用分块写入
-              args.content = `[内容过大，已保存到临时文件]
-文件大小：${content.length} 字符
-临时文件：${tempFile}
-
-💡 请使用分块写入方式：
-1. 将内容分成多个块（每块约 20000 字符）
-2. 使用 file_write 工具，设置：
-   - is_chunk: true
-   - total_chunks: <总块数>
-   - chunk_index: <当前块索引，从 0 开始>
-   - file_path: <目标文件路径>
-   - content: <当前块内容>
-
-示例：
-file_write({
-  file_path: "target.txt",
-  content: "...第一块内容...",
-  is_chunk: true,
-  chunk_index: 0,
-  total_chunks: 5
-})`;
-              
-              console.log(`[QwenProvider] 大文件内容已持久化：${tempFile} (${content.length} 字符)`);
-            } else {
-              args.content = content;
-            }
-          }
-          
-          if (Object.keys(args).length > 0) {
-            toolCalls.push({ id: tc.id, name: tc.function.name, arguments: args });
-          } else {
-            // 参数提取失败，跳过此工具调用
-            console.warn(`[QwenProvider] 无法解析工具参数：${tc.function.name}`);
-            // 不添加工具调用，让模型重新生成
-          }
-        }
+          toolCalls.push({ id: tc.id, name: tc.function.name, arguments: JSON.parse(tc.function.arguments) });
+        } catch { /* 解析失败 */ }
+      }
+    }
+    
+    // 2. 如果 tool_calls 为空，从文本响应中提取（AI 执行模式）
+    if (toolCalls.length === 0 && message.content) {
+      const extractedCalls = this.extractToolCallsFromText(message.content);
+      if (extractedCalls.length > 0) {
+        toolCalls.push(...extractedCalls);
+        message.content = this.removeToolCallsFromText(message.content);
       }
     }
 
@@ -218,6 +161,40 @@ file_write({
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
       usage: data.usage,
     };
+  }
+
+  /**
+   * 从文本响应中提取工具调用（AI 执行模式）
+   */
+  extractToolCallsFromText(text: string): ToolCall[] {
+    const toolCalls: ToolCall[] = [];
+    const toolCallRegex = /⏺\s*(\w+)\(([^)]*)\)/g;
+    let match;
+    
+    while ((match = toolCallRegex.exec(text)) !== null) {
+      const toolName = match[1];
+      const paramsStr = match[2];
+      const args: Record<string, any> = {};
+      
+      for (const pair of paramsStr.split(/,\s*/)) {
+        const [key, ...valueParts] = pair.split('=');
+        if (key && valueParts.length > 0) {
+          let value = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
+          args[key.trim()] = value === 'true' ? true : value === 'false' ? false : /^\d+$/.test(value) ? parseInt(value) : value;
+        }
+      }
+      
+      toolCalls.push({ id: `text_${Date.now()}_${toolCalls.length}`, name: toolName, arguments: args });
+    }
+    
+    return toolCalls;
+  }
+
+  /**
+   * 从文本中移除工具调用标记
+   */
+  removeToolCallsFromText(text: string): string {
+    return text.replace(/⏺\s*\w+\([^)]*\)\s*\n/g, '').trim();
   }
 
   static buildTools(toolRegistry: any): ToolDefinition[] {
