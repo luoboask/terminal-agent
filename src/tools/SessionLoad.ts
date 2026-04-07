@@ -22,8 +22,16 @@ export class SessionLoadTool extends BaseTool<Input> {
     const { filename } = input;
 
     try {
-      // 读取文件
-      const filePath = join(process.cwd(), '.source-deploy', filename);
+      // 读取文件（支持完整路径或文件名）
+      let filePath: string;
+      
+      if (filename.startsWith('/')) {
+        // 完整路径
+        filePath = filename;
+      } else {
+        // 文件名，在 .source-deploy 目录中查找
+        filePath = join(process.cwd(), '.source-deploy', filename);
+      }
       
       if (!existsSync(filePath)) {
         return {

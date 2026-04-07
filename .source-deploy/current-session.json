@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-07T14:00:00.499Z",
+  "timestamp": "2026-04-07T14:04:51.835Z",
   "messageCount": 2,
   "messages": [
     {
@@ -8,7 +8,7 @@
     },
     {
       "role": "user",
-      "content": "读取 pet.py 然后保存会话"
+      "content": "加载会话 session-history.json"
     }
   ]
 }
