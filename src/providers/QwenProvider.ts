@@ -150,7 +150,8 @@ export class QwenProvider {
       const extractedCalls = this.extractToolCallsFromText(message.content);
       if (extractedCalls.length > 0) {
         toolCalls.push(...extractedCalls);
-        message.content = this.removeToolCallsFromText(message.content);
+        // 不移除工具调用标记，让 UI 显示
+        // message.content = this.removeToolCallsFromText(message.content);
       }
     }
 

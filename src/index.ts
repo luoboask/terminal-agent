@@ -218,8 +218,15 @@ function formatToolArgs(args: Record<string, unknown> | undefined): string {
   for (const key of priorityKeys) {
     if (args[key] !== undefined) {
       const val = String(args[key]);
-      const displayVal = val.length > 30 ? val.slice(0, 30) + '...' : val;
-      parts.push(`${key}=${displayVal}`);
+      
+      // command 参数特殊处理（bash 命令要完整显示）
+      if (key === 'command') {
+        const displayVal = val.length > 100 ? val.slice(0, 100) + '...' : val;
+        parts.push(`${key}=${displayVal}`);
+      } else {
+        const displayVal = val.length > 30 ? val.slice(0, 30) + '...' : val;
+        parts.push(`${key}=${displayVal}`);
+      }
     }
   }
   
@@ -331,11 +338,12 @@ async function runRepl(engine: QueryEngine): Promise<void> {
               let spinnerIndex = 0;
               
               // 立即显示第一帧
-              process.stdout.write(`${spinnerFrames[0]} ${toolDisplayName}(${args})`);
+              const displayArgs = toolName === 'bash' ? `command=${chunk.toolInput?.command || args}` : args;
+              process.stdout.write(`${spinnerFrames[0]} ${toolDisplayName}(${displayArgs})`);
               
               const spinnerInterval = setInterval(() => {
                 spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
-                process.stdout.write(`\r\x1b[K${spinnerFrames[spinnerIndex]} ${toolDisplayName}(${args})`);
+                process.stdout.write(`\r\x1b[K${spinnerFrames[spinnerIndex]} ${toolDisplayName}(${displayArgs})`);
               }, 80);
               
               // 存储 interval ID 以便在工具完成时清除
