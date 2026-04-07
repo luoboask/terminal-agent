@@ -238,6 +238,11 @@ function formatToolArgs(args: Record<string, unknown> | undefined): string {
       if (key === 'command') {
         const displayVal = val.length > 100 ? val.slice(0, 100) + '...' : val;
         parts.push(`${key}=${displayVal}`);
+      } else if (key === 'file_path' || key === 'path') {
+        // 路径参数只显示文件名
+        const fileName = val.split('/').pop() || val;
+        const displayVal = fileName.length > 30 ? fileName.slice(0, 30) + '...' : fileName;
+        parts.push(`${key}=${displayVal}`);
       } else {
         const displayVal = val.length > 30 ? val.slice(0, 30) + '...' : val;
         parts.push(`${key}=${displayVal}`);
