@@ -1,6 +1,8 @@
 import { ToolRegistry, BaseTool, ToolResult } from './Tool.js';
 import { info, debug, error, warn } from '../utils/logger.js';
 import { QwenProvider, ChatMessage, ToolResultMessage, ToolCall } from '../providers/QwenProvider.js';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join } from 'path';
 
 /**
  * 消息类型
@@ -81,6 +83,9 @@ export class QueryEngine {
       role: 'user',
       content: prompt,
     });
+    
+    // 自动保存会话
+    this.autoSaveSession();
 
     debug('Submitting message:', prompt.slice(0, 100));
 
@@ -365,5 +370,30 @@ export class QueryEngine {
     }
     
     return count;
+  }
+
+  /**
+   * 自动保存会话到文件
+   */
+  private autoSaveSession(): void {
+    try {
+      // 保存到 .source-deploy 目录
+      const saveDir = join(process.cwd(), '.source-deploy');
+      if (!existsSync(saveDir)) {
+        mkdirSync(saveDir, { recursive: true });
+      }
+
+      const filePath = join(saveDir, 'current-session.json');
+      const saveData = {
+        timestamp: new Date().toISOString(),
+        messageCount: this.messages.length,
+        messages: this.messages,
+      };
+
+      writeFileSync(filePath, JSON.stringify(saveData, null, 2), 'utf-8');
+      debug(`Session auto-saved to ${filePath}`);
+    } catch (error) {
+      warn(`Failed to auto-save session: ${error}`);
+    }
   }
 }

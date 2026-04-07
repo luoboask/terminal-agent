@@ -49,6 +49,8 @@ export { TodoWriteTool } from './TodoWrite.js';
 export { WebSearchTool } from './WebSearch.js';
 export { AskUserTool } from './AskUser.js';
 export { ProjectSummaryTool } from './ProjectSummary.js';
+export { SessionSaveTool } from './SessionSave.js';
+export { SessionLoadTool } from './SessionLoad.js';
 
 // 工具元数据
 export const TOOL_CATEGORIES = {

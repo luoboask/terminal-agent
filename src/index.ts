@@ -37,6 +37,8 @@ import {
   TodoWriteTool,
   WebSearchTool,
   AskUserTool,
+  SessionSaveTool,
+  SessionLoadTool,
   ProjectSummaryTool,
   ListMcpResourcesTool,
   MCPTool,
@@ -163,6 +165,8 @@ function createToolRegistry(): ToolRegistry {
   registry.register(new TodoWriteTool());
   registry.register(new WebSearchTool());
   registry.register(new AskUserTool());
+  registry.register(new SessionSaveTool());
+  registry.register(new SessionLoadTool());
   registry.register(new ProjectSummaryTool());
   
   return registry;
