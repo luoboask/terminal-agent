@@ -44,6 +44,10 @@ export class QueryEngine {
   // 重复调用检测
   private recentToolCalls: Array<{name: string; argsHash: string}> = [];
   private readonly MAX_RECENT_CALLS = 10;
+  
+  // 文件读取历史记录（防止重复读取同一文件）
+  private readFilePaths: Set<string> = new Set();
+  private readonly MAX_FILE_READS = 2; // 同一文件最多读取 2 次
 
   constructor(config: QueryEngineConfig) {
     this.config = {
@@ -123,6 +127,31 @@ export class QueryEngine {
         for (const toolCall of response.toolCalls) {
           debug(`Checking tool call: ${toolCall.name}`, toolCall.arguments);
 
+          // 检测文件重复读取（即使路径格式不同）
+          if (toolCall.name === 'file_read' && toolCall.arguments.file_path) {
+            const filePath = toolCall.arguments.file_path as string;
+            // 标准化路径（移除 ./ 等前缀，提取文件名）
+            const fileName = filePath.split('/').pop() || filePath;
+            
+            // 检查是否已读取过该文件
+            const previousReads = Array.from(this.readFilePaths).filter(p => p.endsWith(fileName));
+            if (previousReads.length >= this.MAX_FILE_READS) {
+              warn(`⚠️ 文件 ${fileName} 已读取 ${previousReads.length} 次，阻止重复读取`);
+              this.messages.push({
+                role: 'tool',
+                tool_call_id: toolCall.id,
+                content: `❌ 阻止重复读取：文件 ${fileName} 已经读取过 ${previousReads.length} 次了，请开始总结分析，不要重复读取`,
+              });
+              yield {
+                type: 'tool_result',
+                content: `❌ 阻止重复读取`,
+                toolName: toolCall.name,
+              };
+              continue; // 跳过这次工具调用
+            }
+            this.readFilePaths.add(filePath);
+          }
+          
           // 检测重复调用
           if (this.isRepeatedToolCall(toolCall.name, toolCall.arguments)) {
             warn(`⚠️ 重复工具调用：${toolCall.name}`);
