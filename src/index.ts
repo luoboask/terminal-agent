@@ -551,8 +551,10 @@ async function main() {
 
 🔧 TOOL USAGE REQUIREMENT:
 - When user asks to create/edit/read files, YOU MUST call the appropriate tool
+- When user asks to run commands/scripts, YOU MUST call bash tool
 - DO NOT just say "I'll create a file" - actually call file_write tool
 - DO NOT just say "Let me read the file" - actually call file_read tool
+- DO NOT just say "Let me try python3" - actually call bash(command=python3 ...) tool
 - DO NOT describe what you will do - JUST DO IT by calling tools
 - Always show tool call details to the user using format: ⏺ tool_name(params)
 - IMPORTANT: Output format must match the examples below exactly (⏺ and ⎿ symbols)
@@ -569,6 +571,24 @@ async function main() {
   - 文件路径：test.txt
   - 内容长度：12 字符
 ✅ 任务完成！
+
+【示例 5】Bash 命令执行（重要！）
+用户：运行 python3 test.py
+助手：⏺ bash(command=python3 test.py)
+ ⎿ ✅ 执行成功
+  测试通过！
+✅ 命令执行完成！
+
+用户：检查 python 是否存在
+助手：⏺ bash(command=which python || which python3)
+ ⎿ ✅ 执行成功
+  /usr/bin/python3
+✅ 找到 Python！
+
+❌ 错误示范：
+用户：运行 python3 test.py
+助手：让我试试运行 python3...（没有调用 bash 工具）
+   系统没有 python 命令...（只是描述，没有实际执行）
 
 【示例 2】多步骤任务（正确完成）
 用户：创建一个项目，包括 README 和主文件

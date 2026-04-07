@@ -4,6 +4,7 @@
 import json
 import os
 from datetime import datetime
+from pet import Pet
 
 
 class PetStorage:
@@ -18,14 +19,15 @@ class PetStorage:
         """
         self.save_path = save_path
     
-    def save(self, pet_data):
+    def save(self, pet):
         """
         保存宠物数据
         
         Args:
-            pet_data: 宠物数据字典
+            pet: Pet 对象
         """
         try:
+            pet_data = pet.to_dict()
             with open(self.save_path, 'w', encoding='utf-8') as f:
                 json.dump(pet_data, f, indent=2, ensure_ascii=False, default=str)
             return True
@@ -38,7 +40,7 @@ class PetStorage:
         加载宠物数据
         
         Returns:
-            dict: 宠物数据，如果不存在返回 None
+            Pet: Pet 对象，如果不存在返回 None
         """
         if not os.path.exists(self.save_path):
             return None
@@ -46,7 +48,8 @@ class PetStorage:
         try:
             with open(self.save_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            return data
+            pet = Pet.from_dict(data)
+            return pet
         except Exception as e:
             print(f"加载失败：{e}")
             return None
