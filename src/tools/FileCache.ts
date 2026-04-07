@@ -31,9 +31,18 @@ export class FileCacheTool extends BaseTool<Input> {
 
 💡 当前没有缓存的文件
 
-💡 提示：读取过的文件会自动缓存，避免重复读取`,
+💡 提示：读取过的文件会自动缓存，避免重复读取
+⚠️ 如果文件被修改，缓存会自动失效并重新读取`,
           };
         }
+        
+        const fileList = files.map((key, i) => {
+          const entry = fileCache[key];
+          const filePath = key.split(':')[0];
+          const mtime = entry.mtime ? new Date(entry.mtime).toLocaleString() : '未知';
+          const cachedAt = entry.cachedAt ? new Date(entry.cachedAt).toLocaleString() : '未知';
+          return `${i + 1}. ${filePath}\n   文件修改时间：${mtime}\n   缓存时间：${cachedAt}`;
+        }).join('\n\n');
         
         return {
           success: true,
@@ -42,9 +51,11 @@ export class FileCacheTool extends BaseTool<Input> {
 📊 缓存文件数量：${files.length}
 
 📁 缓存的文件：
-${files.map((f, i) => `${i + 1}. ${f}`).join('\n')}
+${fileList}
 
-💡 提示：使用 file_cache(action="clear") 清空所有缓存`,
+💡 提示：
+- 如果文件被修改，缓存会自动失效
+- 使用 file_cache(action="clear") 清空所有缓存`,
         };
       } else if (action === 'clear') {
         (global as any).__fileCache = {};

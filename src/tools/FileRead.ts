@@ -117,20 +117,27 @@ file_read(file_path="pet-system/pet.py")`,
     }
 
     try {
-      // 检查文件缓存
+      const stats = statSync(file_path);
+      
+      // 检查文件缓存（包含修改时间检测）
       const fileCache = (global as any).__fileCache || {};
       const cacheKey = `${file_path}:${offset}:${limit}`;
+      const cacheEntry = fileCache[cacheKey];
       
-      if (fileCache[cacheKey]) {
-        debug(`FileRead cache hit: ${file_path}`);
-        return {
-          success: true,
-          content: `📖 文件内容（从缓存读取）\n\n${fileCache[cacheKey]}`,
-          data: { cached: true },
-        };
+      if (cacheEntry) {
+        // 检查文件是否被修改
+        const fileMtime = stats.mtimeMs;
+        if (cacheEntry.mtime === fileMtime) {
+          debug(`FileRead cache hit: ${file_path}`);
+          return {
+            success: true,
+            content: `📖 文件内容（从缓存读取）\n\n${cacheEntry.content}`,
+            data: { cached: true, mtime: new Date(fileMtime).toISOString() },
+          };
+        } else {
+          debug(`FileRead cache expired: ${file_path}, file was modified`);
+        }
       }
-
-      const stats = statSync(file_path);
 
       // 检查是否是文件
       if (!stats.isFile()) {
@@ -169,11 +176,15 @@ file_read(file_path="pet-system/pet.py")`,
       const result = selectedLines.join('\n');
       const totalLines = lines.length;
       
-      // 缓存文件内容
+      // 缓存文件内容（包含修改时间）
       if (!fileCache[cacheKey]) {
         (global as any).__fileCache = fileCache;
-        fileCache[cacheKey] = result;
-        debug(`FileRead cache saved: ${file_path}`);
+        fileCache[cacheKey] = {
+          content: result,
+          mtime: stats.mtimeMs,
+          cachedAt: Date.now(),
+        };
+        debug(`FileRead cache saved: ${file_path}, mtime: ${stats.mtimeMs}`);
       }
       
       // 大文件显示预览，小文件显示完整内容
