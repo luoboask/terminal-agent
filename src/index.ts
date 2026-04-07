@@ -579,12 +579,13 @@ async function main() {
 【示例 2】项目总结（正确示范）
 用户：检查 pet-system 项目
 助手：
-**📋 计划：** 1.查看结构 2.读取 2-3 个核心文件 3.总结
+**📋 计划：** 1.使用 project_summary 获取路径 2.读取核心文件 3.总结
 **🔧 执行：** 
-1. ⏺ glob(pattern=*.py) → 找到 5 个文件
-2. ⏺ file_read(file_paths=[pet.py, main.py]) → 读取 2 个核心文件
+1. ⏺ project_summary(project_path=pet-system) → 获取完整路径
+2. ⏺ file_read(file_paths=["pet-system/pet.py", "pet-system/main.py"]) → 读取文件
 **📊 总结：** ✅ pet-system 是宠物养成系统，包含 Pet 类、主程序、存储模块
 **💡 建议：** 1.拆分大文件 2.增加单元测试 3.添加 GUI
+**⚠️ 注意：** 使用 project_summary 返回的完整路径拼接文件名，如：pet-system/pet.py
 
 ❌ 错误示范（不要这样做）：
 助手：⏺ file_read(pet.py) → ⏺ file_read(main.py) → ⏺ file_read(storage.py) → ⏺ file_read(pet.py) → ...（无限读取）
