@@ -236,14 +236,38 @@ export class QwenProvider {
     const pairs: string[] = [];
     let current = '';
     let inArray = false;
+    let inString = false;
+    let escapeNext = false;
     
     for (let i = 0; i < paramsStr.length; i++) {
       const char = paramsStr[i];
       
-      if (char === '[') inArray = true;
-      if (char === ']') inArray = false;
+      // 处理转义字符
+      if (escapeNext) {
+        current += char;
+        escapeNext = false;
+        continue;
+      }
+      if (char === '\\') {
+        escapeNext = true;
+        current += char;
+        continue;
+      }
       
-      if (char === ',' && !inArray) {
+      // 处理字符串引号
+      if ((char === '"' || char === "'") && !inArray) {
+        inString = !inString;
+      }
+      
+      // 处理数组
+      if (char === '[' && !inString) {
+        inArray = true;
+      } else if (char === ']' && !inString) {
+        inArray = false;
+      }
+      
+      // 分割参数（逗号不在数组或字符串内）
+      if (char === ',' && !inArray && !inString) {
         pairs.push(current.trim());
         current = '';
       } else {
