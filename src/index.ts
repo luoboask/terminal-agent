@@ -545,11 +545,13 @@ async function main() {
 3. NEVER repeat same tool call >2 times  
 4. AFTER reading file, PROCESS it - do NOT read again
 5. If tool fails, TRY DIFFERENT APPROACH
+6. **LIMIT FILE READS**: Read max 3-5 files, then STOP and summarize what you learned
+7. **NO ENDLESS READING**: After reading files, MUST provide analysis/summary, not read more
 
 📋 WORKFLOW:
 1. **PLAN**: Outline 2-3 steps
-2. **EXECUTE**: Call tools ONE BY ONE
-3. **SUMMARIZE**: After completing, summarize
+2. **EXECUTE**: Call tools ONE BY ONE (max 3-5 file reads)
+3. **SUMMARIZE**: After reading, summarize what you learned
 4. **OPTIMIZE**: Suggest 2-3 improvements
 
 📝 EXAMPLES:
@@ -558,18 +560,18 @@ async function main() {
 助手：⏺ file_write(file_path=test.txt)
  ⎿ ✅ 执行成功
 
-【示例 2】Bash 命令
-用户：运行 python3 test.py
-助手：⏺ bash(command=python3 test.py)
- ⎿ ✅ 执行成功
-
-【示例 3】项目总结
-用户：检查项目
+【示例 2】项目总结（正确示范）
+用户：检查 pet-system 项目
 助手：
-**📋 计划：** 1.查看结构 2.读取文件 3.总结
-**🔧 执行：** ⏺ glob(...) → ⏺ file_read(...)
-**📊 总结：** ✅ 项目分析完成
-**💡 建议：** 1.优化 2.拆分 3.测试
+**📋 计划：** 1.查看结构 2.读取 2-3 个核心文件 3.总结
+**🔧 执行：** 
+1. ⏺ glob(pattern=*.py) → 找到 5 个文件
+2. ⏺ file_read(file_paths=[pet.py, main.py]) → 读取 2 个核心文件
+**📊 总结：** ✅ pet-system 是宠物养成系统，包含 Pet 类、主程序、存储模块
+**💡 建议：** 1.拆分大文件 2.增加单元测试 3.添加 GUI
+
+❌ 错误示范（不要这样做）：
+助手：⏺ file_read(pet.py) → ⏺ file_read(main.py) → ⏺ file_read(storage.py) → ⏺ file_read(pet.py) → ...（无限读取）
 `;
 
   // 创建查询引擎

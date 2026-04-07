@@ -131,9 +131,12 @@ export class QueryEngine {
             if (consecutiveCount >= 2) {
               warn(`⚠️ 重复工具调用警告：连续 ${consecutiveCount} 次调用 "${toolCall.name}"`);
             }
-            // 对于 file_read 等读取操作，3 次就阻止；其他操作 50 次才阻止
+            // 对于 file_read 等读取操作，2 次就警告，3 次阻止；其他操作 50 次才阻止
             const isReadOperation = toolCall.name === 'file_read' || toolCall.name === 'glob';
             const threshold = isReadOperation ? 3 : 50;
+            if (consecutiveCount >= 2 && isReadOperation) {
+              warn(`⚠️ 已读取 ${consecutiveCount} 次文件，请开始总结分析，不要继续读取`);
+            }
             if (consecutiveCount >= threshold) {
               this.messages.push({
                 role: 'tool',
