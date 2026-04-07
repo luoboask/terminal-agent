@@ -167,8 +167,7 @@ file_read(file_path="pet-system/pet.py")`,
       const content = readFileSync(file_path, 'utf-8');
       const lines = content.split('\n');
 
-      // 应用偏移和限制
-      const limit = input.limit || this.DEFAULT_MAX_LINES;
+      // 应用偏移和限制（使用解构的 limit 值）
       const startIndex = Math.max(0, offset - 1);
       const endIndex = startIndex + limit;
       const selectedLines = lines.slice(startIndex, endIndex);
