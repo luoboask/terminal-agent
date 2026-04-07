@@ -187,4 +187,73 @@ file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
       };
     }
   }
+
+  /**
+   * 读取单个文件
+   */
+  private async readSingleFile(filePath: string, maxLines: number, offset: number, limit: number): Promise<any> {
+    // 安全检查
+    if (!this.isSafePath(filePath)) {
+      return {
+        success: false,
+        error: 'Access denied: cannot access files outside current directory',
+      };
+    }
+
+    // 检查文件是否存在
+    if (!existsSync(filePath)) {
+      return {
+        success: false,
+        error: `File not found: ${filePath}`,
+      };
+    }
+
+    try {
+      const stats = statSync(filePath);
+
+      // 检查文件大小
+      if (stats.size > this.MAX_FILE_SIZE) {
+        return {
+          success: false,
+          error: `文件过大 (${formatBytes(stats.size)})。最大支持 ${formatBytes(this.MAX_FILE_SIZE)}，请使用 offset 和 limit 参数分块读取`,
+        };
+      }
+
+      // 读取文件
+      const content = readFileSync(filePath, 'utf-8');
+      const lines = content.split('\n');
+      const totalLines = lines.length;
+
+      // 应用偏移和限制
+      const startIndex = Math.max(0, offset - 1);
+      const endIndex = Math.min(startIndex + limit, totalLines);
+      const selectedLines = lines.slice(startIndex, endIndex);
+
+      let output = selectedLines.join('\n');
+
+      if (endIndex < totalLines) {
+        output += `\n\n[... 还有 ${totalLines - endIndex} 行未显示，使用 offset=${endIndex + 1} 继续读取 ...]`;
+      }
+
+      // 大文件显示预览，小文件显示完整内容
+      if (totalLines > 50) {
+        const preview = lines.slice(0, 30).join('\n');
+        return {
+          success: true,
+          content: `📖 文件预览 (${totalLines} 行)\n\n${preview}\n\n… (+${totalLines - 30} more lines)`,
+        };
+      } else {
+        return {
+          success: true,
+          content: output,
+        };
+      }
+    } catch (err) {
+      const error = err as Error;
+      return {
+        success: false,
+        error: `Failed to read file: ${error.message}`,
+      };
+    }
+  }
 }
