@@ -557,7 +557,10 @@ async function main() {
 4. **OPTIMIZE**: Suggest 2-3 improvements
 
 🛠️ TOOL SELECTION GUIDE:
-- Read files: file_read (single), file_read with file_paths (batch), project_summary (entire project)
+- Read files: 
+  - Single file: file_read(file_path="file.py")
+  - Multiple files: file_read(file_paths=["a.py", "b.py"]) ← Use quotes!
+  - Entire project: project_summary(project_path="my-project")
 - Write files: file_write (create), file_edit (modify)
 - Search: grep (text search), glob (file search)
 - Run commands: bash (shell commands, scripts)

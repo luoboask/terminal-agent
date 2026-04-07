@@ -23,7 +23,7 @@ const FileReadInputSchema = z.object({
  */
 export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
   readonly name = 'file_read';
-  readonly description = '读取文件内容。支持指定行数和偏移量，适合读取大文件。文件大小限制 256KB，超过请使用 offset 和 limit 参数分块读取。';
+  readonly description = '读取文件内容。支持单文件 (file_path) 或批量读取 (file_paths=["a.py", "b.py"])。支持指定行数和偏移量，适合读取大文件。文件大小限制 256KB，超过请使用 offset 和 limit 参数分块读取。';
   readonly inputSchema = FileReadInputSchema;
 
   // 最大文件大小限制 (256KB - 参考 claude-code-learning)

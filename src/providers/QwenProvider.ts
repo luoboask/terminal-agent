@@ -199,7 +199,6 @@ export class QwenProvider {
           args[key.trim()] = value;
         }
       }
-      
       toolCalls.push({ id: `text_${Date.now()}_${toolCalls.length}`, name: toolName, arguments: args });
     }
     
