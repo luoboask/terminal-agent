@@ -150,6 +150,14 @@ function createToolRegistry(): ToolRegistry {
   registry.register(new ReadMcpResourceTool());
   registry.register(new LSPTool());
   
+  // 注册其他工具
+  registry.register(new FileDeleteTool());
+  registry.register(new GitDiffTool());
+  registry.register(new WorktreeTool());
+  registry.register(new TodoWriteTool());
+  registry.register(new WebSearchTool());
+  registry.register(new AskUserTool());
+  
   return registry;
 }
 
