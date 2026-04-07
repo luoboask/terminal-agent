@@ -76,13 +76,19 @@ export class GrepTool extends BaseTool<typeof GrepInputSchema> {
 
       args.push(pattern, path);
 
+      // 构建命令
+      let fullCommand: string;
+      
       // 检查 rg 是否可用
       try {
         await execAsync('which rg');
+        // 使用 rg (ripgrep)
+        fullCommand = `${command} ${args.join(' ')}`;
       } catch {
-        // 回退到 grep
+        // 回退到 grep - 需要用引号包裹模式
         command = 'grep';
-        args = [
+        const grepPattern = pattern.replace(/'/g, "'\"'\"'"); // 转义单引号
+        const grepArgs = [
           '-r',
           '-n',
           '--color=never',
@@ -90,13 +96,13 @@ export class GrepTool extends BaseTool<typeof GrepInputSchema> {
         ];
 
         if (include) {
-          args.push('--include', include);
+          grepArgs.push(`--include='${include}'`);
         }
 
-        args.push(pattern, path);
+        // grep 命令需要特殊处理模式参数
+        fullCommand = `${command} ${grepArgs.join(' ')} '${grepPattern}' ${path}`;
       }
-
-      const fullCommand = `${command} ${args.join(' ')}`;
+      
       debug(`Executing: ${fullCommand}`);
 
       const { stdout, stderr } = await execAsync(fullCommand, {
