@@ -371,13 +371,16 @@ async function runRepl(engine: QueryEngine): Promise<void> {
               const resultToolDisplayName = resultToolName.replace(/_/g, ' ');
               const content = chunk.content;
               
-              // 清除工具调用时的闪烁动画
+              // 清除工具调用时的闪烁动画（总是尝试清除，即使已经清除过）
               if ((global as any).__toolSpinner__) {
                 clearInterval((global as any).__toolSpinner__);
                 delete (global as any).__toolSpinner__;
               }
               // 清除动画行并显示工具名
               process.stdout.write('\r\x1b[K');
+              
+              // 额外清除一行（防止残留）
+              process.stdout.write('\x1b[1A\r\x1b[K');
               
               // 简洁显示工具结果（显示前 10 行）
               const resultLines = content.split('\n').slice(0, 10);
