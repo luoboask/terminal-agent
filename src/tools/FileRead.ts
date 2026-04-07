@@ -123,6 +123,7 @@ file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
       const selectedLines = lines.slice(startIndex, endIndex);
 
       const result = selectedLines.join('\n');
+      const totalLines = lines.length;
       
       // 大文件显示预览，小文件显示完整内容
       if (totalLines > 50) {
