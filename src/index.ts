@@ -209,12 +209,29 @@ function getApiKey(env: Record<string, string | undefined>): {
 function formatToolArgs(args: Record<string, unknown> | undefined): string {
   if (!args || Object.keys(args).length === 0) return '';
   
-  // 只显示第一个关键参数
-  const firstKey = Object.keys(args)[0];
-  const firstVal = String(args[firstKey]);
-  const displayVal = firstVal.length > 50 ? firstVal.slice(0, 50) + '...' : firstVal;
+  // 只显示关键参数
+  const parts: string[] = [];
   
-  return `${firstKey}=${displayVal}`;
+  // 优先显示这些参数
+  const priorityKeys = ['subject', 'title', 'file_path', 'path', 'command', 'pattern'];
+  
+  for (const key of priorityKeys) {
+    if (args[key] !== undefined) {
+      const val = String(args[key]);
+      const displayVal = val.length > 30 ? val.slice(0, 30) + '...' : val;
+      parts.push(`${key}=${displayVal}`);
+    }
+  }
+  
+  // 如果没有优先参数，显示第一个参数
+  if (parts.length === 0) {
+    const firstKey = Object.keys(args)[0];
+    const firstVal = String(args[firstKey]);
+    const displayVal = firstVal.length > 30 ? firstVal.slice(0, 30) + '...' : firstVal;
+    parts.push(`${firstKey}=${displayVal}`);
+  }
+  
+  return parts.join(', ');
 }
 
 /**
@@ -310,7 +327,7 @@ async function runRepl(engine: QueryEngine): Promise<void> {
               break;
             case 'tool_result':
             case 'tool_output': // 兼容更多类型名称
-              // 参考 Claude 官方样式显示执行结果（流式 Markdown 优化）
+              // 参考 Claude 官方样式显示执行结果
               const resultToolName = chunk.toolName || '工具';
               const resultToolDisplayName = resultToolName.replace(/_/g, ' ');
               const content = chunk.content;
@@ -322,25 +339,21 @@ async function runRepl(engine: QueryEngine): Promise<void> {
               }
               // 清除动画行并显示工具名
               process.stdout.write('\r\x1b[K');
-              console.log(chalk.cyan(` ┓ ${resultToolDisplayName}`));
               
-              // 工具完成后，继续显示 loading（因为大模型可能还在思考）
-              // loading 会在收到第一个 text chunk 时停止
+              // 简洁显示工具结果（只显示前 3 行）
+              const resultLines = content.split('\n').slice(0, 3);
+              const hasMore = content.split('\n').length > 3;
               
-              // 直接显示工具返回的内容
-              // 对于 FileRead，保留原始格式（包括 markdown）
-              if (resultToolName === 'file_read') {
-                // FileRead: 直接显示内容，保留 markdown 格式
-                console.log(content);
-              } else {
-                // 其他工具：清理 markdown 格式
-                const resultLines = content.split('\n');
-                resultLines.forEach(line => {
-                  const cleanLine = cleanMarkdownSimple(line.replace(/`/g, '').trim());
-                  if (cleanLine) {
-                    console.log(` ${cleanLine}`);
-                  }
-                });
+              console.log(chalk.green(`✅ ${resultToolDisplayName}`));
+              resultLines.forEach(line => {
+                const cleanLine = line.replace(/[#*_`]/g, '').trim();
+                if (cleanLine && !cleanLine.startsWith('**')) {
+                  console.log(chalk.gray(`   ${cleanLine}`));
+                }
+              });
+              
+              if (hasMore) {
+                console.log(chalk.gray(`   ... (+${content.split('\n').length - 3} more lines)`));
               }
               console.log();
               break;
