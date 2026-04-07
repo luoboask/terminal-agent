@@ -44,6 +44,10 @@ export { LSPTool } from './LSP.js';
 export { ListMcpResourcesTool } from './ListMcpResources.js';
 export { MCPTool } from './MCPTool.js';
 export { WorktreeTool } from './WorktreeTool.js';
+export { GitDiffTool } from './GitDiff.js';
+export { TodoWriteTool } from './TodoWrite.js';
+export { WebSearchTool } from './WebSearch.js';
+export { AskUserTool } from './AskUser.js';
 
 // 工具元数据
 export const TOOL_CATEGORIES = {

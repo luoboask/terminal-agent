@@ -28,9 +28,15 @@ import {
   FileReadTool,
   FileEditTool,
   FileWriteTool,
+  FileDeleteTool,
   DirectoryCreateTool,
   GrepTool,
   GlobTool,
+  GitDiffTool,
+  WorktreeTool,
+  TodoWriteTool,
+  WebSearchTool,
+  AskUserTool,
   ListMcpResourcesTool,
   MCPTool,
   WebFetchTool,
@@ -46,7 +52,6 @@ import {
   BriefTool,
   SkillTool,
   AgentTool,
-
   ReadMcpResourceTool,
   LSPTool,
 } from './tools/index.js';
