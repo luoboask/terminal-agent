@@ -6,7 +6,7 @@
 
 import { z } from 'zod';
 import { BaseTool, ToolResult } from '../core/Tool.js';
-import { createTask, loadTasks } from '../utils/taskStorage.js';
+import { createTask, loadTasks } from '../utils/taskStorageV2.js';
 
 const TaskCreateInputSchema = z.object({
   title: z.string().describe('任务标题'),

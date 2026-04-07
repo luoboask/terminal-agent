@@ -6,7 +6,7 @@
 
 import { z } from 'zod';
 import { BaseTool, ToolResult } from '../core/Tool.js';
-import { loadTasks } from '../utils/taskStorage.js';
+import { loadTasks } from '../utils/taskStorageV2.js';
 
 const TaskGetInputSchema = z.object({
   taskId: z.string().describe('任务 ID'),

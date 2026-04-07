@@ -6,7 +6,7 @@
 
 import { z } from 'zod';
 import { BaseTool, ToolResult } from '../core/Tool.js';
-import { loadTasks, saveTasks } from '../utils/taskStorage.js';
+import { loadTasks, saveTasks } from '../utils/taskStorageV2.js';
 
 const TaskStopInputSchema = z.object({
   taskId: z.string().describe('任务 ID'),

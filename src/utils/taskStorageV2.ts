@@ -220,7 +220,7 @@ export function deleteTask(taskId: string): boolean {
 /**
  * 保存所有任务
  */
-function saveTasks(tasks: Task[]): void {
+export function saveTasks(tasks: Task[]): void {
   ensureTaskDir();
   // 每个任务保存为单独的文件
   for (const task of tasks) {
