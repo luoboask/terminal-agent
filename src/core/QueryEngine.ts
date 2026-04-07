@@ -75,6 +75,60 @@ export class QueryEngine {
   }
 
   /**
+   * 估算消息的 token 数量（简单估算：1 token ≈ 4 字符）
+   */
+  private estimateTokens(text: string): number {
+    return Math.ceil(text.length / 4);
+  }
+
+  /**
+   * 摘要长工具结果，减少 token 使用
+   */
+  private summarizeToolResult(content: string, maxLength: number = 500): string {
+    if (content.length <= maxLength) {
+      return content;
+    }
+    
+    // 截取前 maxLength 字符，并添加说明
+    const summary = content.substring(0, maxLength);
+    return `${summary}\n\n[... 内容过长，已截断。完整内容 ${content.length} 字符 ...]`;
+  }
+
+  /**
+   * 智能管理上下文，限制 token 使用
+   */
+  private manageContext(maxTokens: number = 6000): void {
+    // 估算当前 token 使用
+    const currentTokens = this.messages.reduce((sum, m) => {
+      return sum + this.estimateTokens(m.content || '');
+    }, 0);
+    
+    debug(`Current context: ${this.messages.length} messages, ~${currentTokens} tokens`);
+    
+    // 如果 token 使用在合理范围内，不需要管理
+    if (currentTokens < maxTokens) {
+      return;
+    }
+    
+    // 保留系统提示
+    const systemMessages = this.messages.filter(m => m.role === 'system');
+    
+    // 优先保留最近的消息
+    const recentMessages = this.messages
+      .filter(m => m.role !== 'system')
+      .slice(-15);  // 保留最近 15 条
+    
+    // 更新消息列表
+    this.messages = [...systemMessages, ...recentMessages];
+    
+    const newTokens = this.messages.reduce((sum, m) => {
+      return sum + this.estimateTokens(m.content || '');
+    }, 0);
+    
+    debug(`Context managed: ${currentTokens} → ${newTokens} tokens (saved ${currentTokens - newTokens})`);
+  }
+
+  /**
    * 提交消息并获取响应（完整工具调用循环）
    */
   async *submitMessage(prompt: string): AsyncGenerator<StreamMessage> {
@@ -83,6 +137,11 @@ export class QueryEngine {
       role: 'user',
       content: prompt,
     });
+    
+    // 管理上下文，避免 token 超限
+    if (this.messages.length > 30) {
+      this.manageContext();
+    }
     
     // 自动保存会话
     this.autoSaveSession();
@@ -226,13 +285,17 @@ export class QueryEngine {
           try {
             const result = await tool.execute(toolCall.arguments);
             
+            // 摘要长工具结果，减少 token 使用
+            const toolContent = result.success 
+              ? result.content 
+              : `Error: ${result.error || result.content}`;
+            const summarizedContent = this.summarizeToolResult(toolContent);
+            
             // 添加工具结果到历史
             this.messages.push({
               role: 'tool',
               tool_call_id: toolCall.id,
-              content: result.success 
-                ? result.content 
-                : `Error: ${result.error || result.content}`,
+              content: summarizedContent,
             });
 
             // 返回工具结果（简洁版）
