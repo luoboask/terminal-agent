@@ -177,22 +177,19 @@ export class QwenProvider {
       const paramsStr = match[2];
       const args: Record<string, any> = {};
       
-      for (const pair of paramsStr.split(/,\s*/)) {
+      // 智能分割参数：考虑数组中的逗号
+      const pairs = this.smartSplitParams(paramsStr);
+      
+      for (const pair of pairs) {
         const [key, ...valueParts] = pair.split('=');
         if (key && valueParts.length > 0) {
           let value = valueParts.join('=').trim();
           
-          // 处理数组格式：["a", "b", "c"]
+          // 处理数组格式：["a", "b", "c"] 或 [a, b, c]
           if (value.startsWith('[') && value.endsWith(']')) {
-            try {
-              // 尝试解析 JSON 数组
-              const arrayContent = value.slice(1, -1);
-              const items = arrayContent.split(/,\s*/).map(item => item.replace(/^["']|["']$/g, '').trim());
-              value = items;
-            } catch {
-              // 解析失败，保留原值
-              value = value.replace(/^["']|["']$/g, '');
-            }
+            const arrayContent = value.slice(1, -1);
+            const items = arrayContent.split(/,\s*/).map(item => item.trim().replace(/^["']|["']$/g, ''));
+            value = items;
           } else {
             // 普通值
             value = value.replace(/^["']|["']$/g, '');
@@ -207,6 +204,35 @@ export class QwenProvider {
     }
     
     return toolCalls;
+  }
+
+  /**
+   * 智能分割参数（考虑数组中的逗号）
+   */
+  private smartSplitParams(paramsStr: string): string[] {
+    const pairs: string[] = [];
+    let current = '';
+    let inArray = false;
+    
+    for (let i = 0; i < paramsStr.length; i++) {
+      const char = paramsStr[i];
+      
+      if (char === '[') inArray = true;
+      if (char === ']') inArray = false;
+      
+      if (char === ',' && !inArray) {
+        pairs.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    if (current.trim()) {
+      pairs.push(current.trim());
+    }
+    
+    return pairs;
   }
 
   /**
