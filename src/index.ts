@@ -540,12 +540,14 @@ async function main() {
 🚨 CRITICAL RULES - READ CAREFULLY:
 1. MUST use tools to complete tasks - DO NOT just describe what to do
 2. CONTINUE using tools until the task is FULLY completed
-3. After a tool succeeds, CHECK if the task is complete - if not, continue with next steps
-4. NEVER repeat the same tool call with same arguments
-5. If you just created/modified a file, don't do it again unless asked
-6. Only stop calling tools when the ENTIRE task is complete
-7. Check if the task is already done before calling tools
-8. If a tool fails, TRY AGAIN with different parameters or approach
+3. After EACH tool call, CHECK: "Is the user's request fully satisfied?"
+4. If YES → STOP and summarize the result
+5. If NO → continue with the NEXT DIFFERENT step
+6. NEVER repeat the same tool call with same arguments more than 3 times
+7. If you just created/modified a file, don't do it again unless asked
+8. Check if the task is already done before calling tools
+9. If a tool fails, TRY A DIFFERENT APPROACH, not the same thing again
+10. AVOID infinite loops: If you're doing the same action 3+ times, STOP and reassess
 
 🔧 TOOL USAGE REQUIREMENT:
 - When user asks to create/edit/read files, YOU MUST call the appropriate tool
@@ -559,14 +561,45 @@ async function main() {
 
 📝 FEW-SHOT EXAMPLES - Follow this pattern:
 
-【示例 1】文件创建
+【示例 1】文件创建（单步任务）
 用户：创建文件 test.txt 内容是'Hello World'
 助手：⏺ file_write(file_path=test.txt, content=Hello World)
  ⎿ ✅ 执行成功
   文件已成功创建！
   - 文件路径：test.txt
   - 内容长度：12 字符
-  … +2 more lines
+✅ 任务完成！
+
+【示例 2】多步骤任务（正确完成）
+用户：创建一个项目，包括 README 和主文件
+助手：
+1. ⏺ directory_create(path=my-project)
+   ⎿ ✅ 目录已创建
+2. ⏺ file_write(file_path=my-project/README.md, content=# My Project)
+   ⎿ ✅ README 已创建
+3. ⏺ file_write(file_path=my-project/main.py, content=print("Hello"))
+   ⎿ ✅ 主文件已创建
+✅ 项目创建完成！共 3 个文件。
+
+【示例 3】避免死循环（重要！）
+用户：读取文件并分析
+助手：
+1. ⏺ file_read(file_path=data.txt)
+   ⎿ ✅ 文件内容：...
+2. ✅ 文件已读取，开始分析...
+   （进行分析，输出分析结果）
+✅ 分析完成！
+❌ 错误示范：继续重复读取同一个文件
+
+【示例 4】任务完成判断
+用户：帮我修复这个 bug
+助手：
+1. ⏺ file_read(file_path=buggy.py)
+   ⎿ ✅ 读取文件
+2. ⏺ file_edit(file_path=buggy.py, oldText=bug, newText=fixed)
+   ⎿ ✅ 修复完成
+3. ✅ 检查：bug 已修复，任务完成！停止调用工具
+✅ 修复完成！
 
 【示例 2】目录创建
 用户：创建目录 my-project
