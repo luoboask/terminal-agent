@@ -8,11 +8,13 @@
     "metadata": {},
     "priority": "medium",
     "dueDate": null,
-    "status": "pending",
+    "status": "completed",
     "blocks": [],
     "blockedBy": [],
     "createdAt": "2026-04-06T17:11:47.488Z",
-    "completedAt": null
+    "completedAt": null,
+    "completed_at": 1775527788490.884,
+    "updated_at": 1775527788490.884
   },
   {
     "id": "task_1775497994177_g77dwdhaw",
@@ -23,11 +25,13 @@
     "metadata": "{\"type\": \"game_development\", \"language\": \"python\", \"framework\": \"pygame\"}",
     "priority": "high",
     "dueDate": null,
-    "status": "pending",
+    "status": "completed",
     "blocks": [],
     "blockedBy": [],
     "createdAt": "2026-04-06T17:53:14.177Z",
-    "completedAt": null
+    "completedAt": null,
+    "completed_at": 1775527788490.884,
+    "updated_at": 1775527788490.884
   },
   {
     "id": "task_1775505339304_zn2thc74s",
@@ -36,12 +40,14 @@
     "description": "开发一个完整的机器人战斗游戏，包括机器人设计、战斗系统、用户界面等",
     "priority": "high",
     "dueDate": null,
-    "status": "pending",
+    "status": "completed",
     "blocks": [],
     "blockedBy": [],
     "metadata": {},
     "createdAt": "2026-04-06T19:55:39.304Z",
-    "completedAt": null
+    "completedAt": null,
+    "completed_at": 1775527788490.884,
+    "updated_at": 1775527788490.884
   },
   {
     "id": "task_1775507468981_x7zf1juq1",
@@ -50,12 +56,14 @@
     "description": "使用 Python + Pygame 创建经典坦克大战游戏，包含玩家坦克、敌方坦克、子弹系统、地图障碍物、碰撞检测等",
     "priority": "high",
     "dueDate": null,
-    "status": "pending",
+    "status": "completed",
     "blocks": [],
     "blockedBy": [],
     "metadata": {},
     "createdAt": "2026-04-06T20:31:08.981Z",
-    "completedAt": null
+    "completedAt": null,
+    "completed_at": 1775527788490.884,
+    "updated_at": 1775527788490.884
   },
   {
     "id": "task_1775508391800_zj7uh5jcc",
@@ -64,12 +72,14 @@
     "description": "创建一个回合制机器人大战游戏，包含机器人属性、战斗系统、技能系统等",
     "priority": "high",
     "dueDate": null,
-    "status": "pending",
+    "status": "completed",
     "blocks": [],
     "blockedBy": [],
     "metadata": {},
     "createdAt": "2026-04-06T20:46:31.800Z",
-    "completedAt": null
+    "completedAt": null,
+    "completed_at": 1775527788490.884,
+    "updated_at": 1775527788490.884
   },
   {
     "id": "task_1775508864214_q1pc2e8b9",
@@ -78,12 +88,14 @@
     "description": "使用 Python 和 pygame 创建一个经典的坦克大战游戏，包括玩家坦克、敌人坦克、子弹系统、地图障碍物和碰撞检测",
     "priority": "high",
     "dueDate": null,
-    "status": "running",
+    "status": "completed",
     "blocks": [],
     "blockedBy": [],
     "metadata": {},
     "createdAt": "2026-04-06T20:54:24.214Z",
-    "completedAt": null
+    "completedAt": null,
+    "completed_at": 1775527788490.884,
+    "updated_at": 1775527788490.884
   },
   {
     "id": "task_1775526740792_sxhnhr03c",
@@ -92,11 +104,13 @@
     "description": "运行游戏并验证是否能正常启动",
     "priority": "normal",
     "dueDate": null,
-    "status": "running",
+    "status": "completed",
     "blocks": [],
     "blockedBy": [],
     "metadata": {},
     "createdAt": "2026-04-07T01:52:20.792Z",
-    "completedAt": null
+    "completedAt": null,
+    "completed_at": 1775527788490.884,
+    "updated_at": 1775527788490.884
   }
 ]
