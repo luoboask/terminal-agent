@@ -126,8 +126,11 @@ export class QueryEngine {
           // 检测重复调用
           if (this.isRepeatedToolCall(toolCall.name, toolCall.arguments)) {
             warn(`⚠️ 重复工具调用：${toolCall.name}`);
-            // 如果是连续第 3 次相同调用，阻止并返回错误
+            // 如果是连续第 2 次相同调用，警告；第 3 次阻止并返回错误
             const consecutiveCount = this.getConsecutiveCallCount(toolCall.name, toolCall.arguments);
+            if (consecutiveCount >= 2) {
+              warn(`⚠️ 重复工具调用警告：连续 ${consecutiveCount} 次调用 "${toolCall.name}"`);
+            }
             if (consecutiveCount >= 3) {
               this.messages.push({
                 role: 'tool',

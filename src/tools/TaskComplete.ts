@@ -34,9 +34,18 @@ export class TaskCompleteTool extends BaseTool<typeof TaskCompleteInputSchema> {
       const taskIndex = tasks.findIndex((t: any) => t.id === taskId);
 
       if (taskIndex === -1) {
+        // 尝试找到相似的任务 ID
+        const tasks = loadTasks();
+        const similarTasks = tasks.filter((t: any) => t.id.startsWith(taskId.slice(0, 20)));
+        
+        let hint = '';
+        if (similarTasks.length > 0) {
+          hint = `\n\n💡 找到相似的任务:\n` + similarTasks.slice(0, 3).map((t: any) => `  - ${t.id}: ${t.subject}`).join('\n');
+        }
+        
         return {
           success: false,
-          content: `❌ 未找到任务\n\n任务 ID: ${taskId}\n\n请使用 \`task_list\` 查看所有任务。`,
+          content: `❌ 未找到任务\n\n任务 ID: ${taskId}${hint}\n\n请使用 \`task_list\` 查看所有任务。`,
           error: 'Task not found',
         };
       }
