@@ -136,15 +136,15 @@ export class QueryEngine {
             // 检查是否已读取过该文件
             const previousReads = Array.from(this.readFilePaths).filter(p => p.endsWith(fileName));
             if (previousReads.length >= this.MAX_FILE_READS) {
-              warn(`⚠️ 文件 ${fileName} 已读取 ${previousReads.length} 次，阻止重复读取`);
+              warn(`⚠️ 文件 ${fileName} 已读取 ${previousReads.length} 次`);
               // 使用 assistant 角色而不是 tool 角色，避免 Qwen API 验证错误
               this.messages.push({
                 role: 'assistant',
-                content: `⚠️ 文件 ${fileName} 已经读取过 ${previousReads.length} 次了，请开始总结分析，不要重复读取`,
+                content: `✅ 文件 ${fileName} 已读取过，请开始总结分析`,
               });
               yield {
                 type: 'tool_result',
-                content: `❌ 阻止重复读取`,
+                content: `✅ 已读取`,
                 toolName: toolCall.name,
               };
               continue; // 跳过这次工具调用

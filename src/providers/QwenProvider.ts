@@ -141,10 +141,15 @@ export class QwenProvider {
     
     // 1. 尝试从 tool_calls 字段获取
     if (message.tool_calls?.length) {
+      // console.log(`[DEBUG] tool_calls 数量：${message.tool_calls.length}`);
       for (const tc of message.tool_calls) {
+        // console.log(`[DEBUG] tool_call: id=${tc.id}, name=${tc.function.name}, args=${tc.function.arguments.substring(0, 200)}...`);
         try {
           toolCalls.push({ id: tc.id, name: tc.function.name, arguments: JSON.parse(tc.function.arguments) });
-        } catch { /* 解析失败 */ }
+          // console.log(`[DEBUG] 解析成功`);
+        } catch (e) {
+          // console.log(`[DEBUG] 解析失败：${e}`);
+        }
       }
     }
     
