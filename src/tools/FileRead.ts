@@ -8,9 +8,8 @@ import { formatBytes } from '../utils/helpers.js';
  * 文件读取工具输入 Schema
  */
 const FileReadInputSchema = z.object({
-  file_path: z.string().describe('要读取的文件路径（单个文件时使用）'),
-  file_paths: z.array(z.string()).optional().describe('要读取的多个文件路径列表（批量读取时使用）'),
-  maxLines: z.number().optional().describe('每个文件最大读取行数（默认 1000）'),
+  file_path: z.string().describe('要读取的文件路径'),
+  maxLines: z.number().optional().describe('最大读取行数（默认 1000）'),
   offset: z.number().optional().describe('起始行号（从 1 开始，默认从开头读取）'),
   limit: z.number().optional().describe('读取行数限制（默认 2000 行）'),
 });
