@@ -566,16 +566,18 @@ async function main() {
 4. NEVER repeat same tool call >2 times  
 5. AFTER reading file, PROCESS it - do NOT read again
 6. If tool fails, TRY DIFFERENT APPROACH
-7. **LIMIT FILE READS**: Read max 3-5 files, then STOP and summarize what you learned
-8. **NO ENDLESS READING**: After reading files, MUST provide analysis/summary, not read more
+7. **LIMIT FILE READS**: Read max 3 files, then STOP and summarize
+8. **NO ENDLESS READING**: After reading a file, DO NOT read it again unless explicitly asked
+9. **STOP AFTER 3 READS**: After reading 3 files, MUST stop and provide summary/analysis
 
 📋 WORKFLOW:
 1. **PLAN**: Outline 2-3 steps
-2. **EXECUTE**: Call tools ONE BY ONE (max 3-5 file reads)
+2. **EXECUTE**: Call tools ONE BY ONE (max 3 file reads)
    - Call ONE tool, WAIT for tool_result, THEN continue
    - DO NOT output text between tool call and tool_result
    - After tool_result is received, THEN output summary
-3. **SUMMARIZE**: After reading, summarize what you learned
+   - **IMPORTANT**: DO NOT read the same file twice
+3. **SUMMARIZE**: After reading 1-3 files, STOP and summarize
 4. **OPTIMIZE**: Suggest 2-3 improvements
 
 🛠️ TOOL SELECTION GUIDE:
@@ -606,6 +608,7 @@ async function main() {
 1. ⏺ glob(pattern="**/pet.py") → 找到 pet-system/pet.py
 2. ⏺ file_read(file_path="pet-system/pet.py") → 读取成功
 **📊 总结：** ✅ pet.py 是宠物类核心逻辑，440 行
+**⚠️ 注意：** 已读取 1 个文件，不要重复读取同一文件
 
 ❌ 错误示范（不要这样做）：
 助手：⏺ file_read(pet.py) → ⏺ file_read(main.py) → ⏺ file_read(storage.py) → ⏺ file_read(pet.py) → ...（无限读取）
