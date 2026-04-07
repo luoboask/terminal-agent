@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 机器人冒险游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: #000;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff;
+            z-index: 100;
+        }
+        .stat-box {
+            background: rgba(0, 20, 40, 0.8);
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            min-width: 200px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #health-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        #health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f00, #ff0, #0f0);
+            transition: width 0.3s;
+        }
+        #controls-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f00;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 0 0 20px #f00;
+            display: none;
+            z-index: 200;
+            text-align: center;
+        }
+        #restart-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 20px;
+            background: #0ff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+        }
+        #restart-btn:hover {
+            background: #fff;
+        }
+        #score-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #ff0;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff0;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    
+    <div id="ui-overlay">
+        <div class="stat-box">
+            <div class="stat-label">生命值</div>
+            <div id="health-bar">
+                <div id="health-fill" style="width: 100%"></div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">能量</div>
+            <div class="stat-value" id="energy-value">100</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">关卡</div>
+            <div class="stat-value" id="level-value">1</div>
+        </div>
+    </div>
+    
+    <div id="score-display">得分：0</div>
+    
+    <div id="controls-hint">
+        <strong>控制说明:</strong><br>
+        W/↑ - 前进 | S/↓ - 后退 | A/← - 左转 | D/→ - 右转<br>
+        空格 - 跳跃 | Shift - 加速 | 鼠标 - 视角
+    </div>
+    
+    <div id="game-over">
+        <div>游戏结束</div>
+        <div style="font-size: 24px; margin: 20px 0;">最终得分：<span id="final-score">0</span></div>
+        <button id="restart-btn" onclick="restartGame()">重新开始</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

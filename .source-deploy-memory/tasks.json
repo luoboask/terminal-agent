@@ -1,0 +1,14 @@
+{
+  "plans": [
+    {
+      "id": "plan_1775472283362_6ae8o1",
+      "name": "Default",
+      "description": "Default task plan",
+      "tasks": {},
+      "createdAt": 1775472283362,
+      "updatedAt": 1775472283362
+    }
+  ],
+  "currentPlanId": "plan_1775472283362_6ae8o1",
+  "updatedAt": 1775472283362
+}

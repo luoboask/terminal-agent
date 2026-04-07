@@ -1,0 +1,37 @@
+{
+  "name": "source-deploy",
+  "version": "0.1.0",
+  "description": "Claude Code CLI 本地部署版本 - 简化实现",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "source-deploy": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "start": "bun run src/index.ts",
+    "build": "tsc",
+    "test": "bun test tests/"
+  },
+  "keywords": [
+    "claude",
+    "cli",
+    "agent",
+    "mcp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.0",
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "chalk": "^5.6.2",
+    "commander": "^13.1.0",
+    "marked": "^17.0.6",
+    "prompts": "^2.4.2",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.8.0"
+  }
+}

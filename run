@@ -1,0 +1,11 @@
+#!/bin/bash
+# 快速启动脚本
+# 用法：./run "你的提示"
+
+cd "$(dirname "$0")"
+
+if [ -n "$1" ]; then
+    bun run src/index.ts --prompt "$*"
+else
+    bun run src/index.ts
+fi

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞机大战游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .game-container {
+            text-align: center;
+        }
+
+        #gameCanvas {
+            border: 3px solid #4a9eff;
+            border-radius: 5px;
+            background: #0a0a1a;
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+        }
+
+        .game-info {
+            color: #fff;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        .score {
+            color: #4a9eff;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 10px;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="480" height="640"></canvas>
+        <div class="game-info">
+            <p>得分：<span class="score" id="score">0</span></p>
+            <p class="controls">控制：方向键或 WASD 移动，空格键发射子弹</p>
+        </div>
+    </div>
+
+    <script>
+        // 获取 canvas 和上下文
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        // 游戏状态
+        let score = 0;
+        let gameOver = false;
+
+        // 玩家飞机
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 60,
+            width: 50,
+            height: 50,
+            speed: 5
+        };
+
+        // 敌机系统
+        const enemies = [];
+
+        // 生成敌机
+        function spawnEnemy() {
+            const enemy = {
+                x: Math.random() * (canvas.width - 40) + 20,
+                y: -30,
+                width: 40,
+                height: 40,
+                speed: 2
+            };
+            enemies.push(enemy);
+        }
+        // 每 2 秒生成一个敌机
+        setInterval(spawnEnemy, 2000);
+
+        // 更新敌机位置
+        function updateEnemies() {
+            enemies.forEach((enemy, index) => {
+                enemy.y += enemy.speed;
+                // 移除超出屏幕的敌机
+                if (enemy.y > canvas.height + 30) {
+                    enemies.splice(index, 1);
+                }
+            });
+        }
+
+        // 绘制敌机
+        function drawEnemies() {
+            ctx.fillStyle = '#ff4444';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
+            });
+        }
+
+        // 子弹系统
+        const bullets = [];
+        
+        // 空格键监听 - 发射子弹
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                shootBullet();
+            }
+        });
+        
+        // 发射子弹
+        function shootBullet() {
+            const bullet = {
+                x: player.x,
+                y: player.y - player.height / 2,
+                radius: 5,
+                speed: 10
+            };
+            bullets.push(bullet);
+        }
+        
+        // 更新子弹位置
+        function updateBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bullet.speed;
+                // 移除超出屏幕的子弹
+                if (bullet.y < -10) {
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+        
+        // 绘制子弹
+        function drawBullets() {
+            ctx.fillStyle = '#4af';
+            bullets.forEach(bullet => {
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // 游戏主循环
+        function gameLoop() {
+            // 清空画布
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制玩家飞机
+            drawPlayer();
+
+            // 更新分数显示
+            scoreElement.textContent = score;
+
+            // 继续游戏循环
+            if (!gameOver) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // 绘制玩家飞机
+        function drawPlayer() {
+            ctx.fillStyle = '#4a9eff';
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y - player.height / 2);
+            ctx.lineTo(player.x - player.width / 2, player.y + player.height / 2);
+            ctx.lineTo(player.x, player.y + player.height / 4);
+            ctx.lineTo(player.x + player.width / 2, player.y + player.height / 2);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // 键盘控制
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // 更新玩家位置
+        function updatePlayer() {
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+                player.x += player.speed;
+            }
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+                player.y -= player.speed;
+            }
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) {
+                player.y += player.speed;
+            }
+
+            // 边界检测
+            player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
+            player.y = Math.max(player.height / 2, Math.min(canvas.height - player.height / 2, player.y));
+        }
+
+        // 启动游戏
+        gameLoop();
+    </script>
+</body>
+</html>
