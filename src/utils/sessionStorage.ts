@@ -105,9 +105,18 @@ export function createSession(title?: string, metadata?: Record<string, any>): S
 
 /**
  * 加载会话
+ * @param sessionId - 会话 ID
+ * @param projectDir - 可选，从指定项目目录加载（跨项目恢复）
  */
-export function loadSession(sessionId: string): Session | null {
-  const path = getSessionPath(sessionId);
+export function loadSession(sessionId: string, projectDir?: string): Session | null {
+  let path: string;
+  
+  // 如果指定了项目目录，从该目录加载
+  if (projectDir) {
+    path = join(projectDir, '.source-deploy', 'sessions', `${sessionId}.json`);
+  } else {
+    path = getSessionPath(sessionId);
+  }
   
   if (!existsSync(path)) {
     return null;
@@ -116,12 +125,52 @@ export function loadSession(sessionId: string): Session | null {
   try {
     const content = readFileSync(path, 'utf-8');
     const session = JSON.parse(content) as Session;
-    debug(`Loaded session ${sessionId} with ${session.messages.length} messages`);
+    debug(`Loaded session ${sessionId} from ${projectDir || 'current project'} with ${session.messages.length} messages`);
     return session;
   } catch (error) {
     warn(`Failed to load session ${sessionId}: ${error}`);
     return null;
   }
+}
+
+/**
+ * 跨项目恢复会话
+ * @param sessionId - 会话 ID
+ * @param fromProjectDir - 源项目目录
+ * @param toProjectDir - 目标项目目录（可选，默认当前项目）
+ */
+export function resumeSession(
+  sessionId: string,
+  fromProjectDir: string,
+  toProjectDir?: string
+): Session | null {
+  // 从源项目加载会话
+  const session = loadSession(sessionId, fromProjectDir);
+  
+  if (!session) {
+    return null;
+  }
+  
+  // 如果目标项目不同，复制会话
+  if (toProjectDir && toProjectDir !== fromProjectDir) {
+    session.metadata = {
+      ...session.metadata,
+      originalProject: fromProjectDir,
+      resumedAt: new Date().toISOString(),
+    };
+    
+    const targetPath = join(toProjectDir, '.source-deploy', 'sessions', `${sessionId}.json`);
+    const targetDir = dirname(targetPath);
+    
+    if (!existsSync(targetDir)) {
+      mkdirSync(targetDir, { recursive: true });
+    }
+    
+    writeFileSync(targetPath, JSON.stringify(session, null, 2), 'utf-8');
+    debug(`Resumed session ${sessionId} from ${fromProjectDir} to ${toProjectDir}`);
+  }
+  
+  return session;
 }
 
 /**
