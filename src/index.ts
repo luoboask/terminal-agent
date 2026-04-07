@@ -340,9 +340,9 @@ async function runRepl(engine: QueryEngine): Promise<void> {
               // 清除动画行并显示工具名
               process.stdout.write('\r\x1b[K');
               
-              // 简洁显示工具结果（只显示前 3 行）
-              const resultLines = content.split('\n').slice(0, 3);
-              const hasMore = content.split('\n').length > 3;
+              // 简洁显示工具结果（显示前 10 行）
+              const resultLines = content.split('\n').slice(0, 10);
+              const hasMore = content.split('\n').length > 10;
               
               console.log(chalk.green(`✅ ${resultToolDisplayName}`));
               resultLines.forEach(line => {
@@ -353,7 +353,7 @@ async function runRepl(engine: QueryEngine): Promise<void> {
               });
               
               if (hasMore) {
-                console.log(chalk.gray(`   ... (+${content.split('\n').length - 3} more lines)`));
+                console.log(chalk.gray(`   ... (+${content.split('\n').length - 10} more lines)`));
               }
               console.log();
               break;
