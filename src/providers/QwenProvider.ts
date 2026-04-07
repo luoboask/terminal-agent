@@ -180,8 +180,26 @@ export class QwenProvider {
       for (const pair of paramsStr.split(/,\s*/)) {
         const [key, ...valueParts] = pair.split('=');
         if (key && valueParts.length > 0) {
-          let value = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
-          args[key.trim()] = value === 'true' ? true : value === 'false' ? false : /^\d+$/.test(value) ? parseInt(value) : value;
+          let value = valueParts.join('=').trim();
+          
+          // 处理数组格式：["a", "b", "c"]
+          if (value.startsWith('[') && value.endsWith(']')) {
+            try {
+              // 尝试解析 JSON 数组
+              const arrayContent = value.slice(1, -1);
+              const items = arrayContent.split(/,\s*/).map(item => item.replace(/^["']|["']$/g, '').trim());
+              value = items;
+            } catch {
+              // 解析失败，保留原值
+              value = value.replace(/^["']|["']$/g, '');
+            }
+          } else {
+            // 普通值
+            value = value.replace(/^["']|["']$/g, '');
+            value = value === 'true' ? true : value === 'false' ? false : /^\d+$/.test(value) ? parseInt(value) : value;
+          }
+          
+          args[key.trim()] = value;
         }
       }
       
