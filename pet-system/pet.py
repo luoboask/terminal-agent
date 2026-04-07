@@ -33,6 +33,7 @@ class Pet:
         self.level = 1
         self.exp = 0
         self.exp_to_next = 100
+        self.exp_to_next_level = 100  # 别名，兼容 main.py
         
         # 基础属性 (0-100)
         self.hunger = 50  # 饥饿度 (越低越饿)
@@ -53,6 +54,24 @@ class Pet:
         
         # 外观
         self.appearance = self._get_initial_appearance()
+        self._age = 0  # 年龄（天数）
+        
+    @property
+    def age(self) -> int:
+        """获取宠物年龄（天数）"""
+        return self._age
+    
+    @property
+    def growth_stage(self) -> str:
+        """获取成长阶段"""
+        if self.level < 5:
+            return "幼年期"
+        elif self.level < 10:
+            return "成长期"
+        elif self.level < 15:
+            return "成熟期"
+        else:
+            return "完全体"
         
     def _get_initial_appearance(self) -> dict:
         """获取初始外观"""
@@ -169,17 +188,31 @@ class Pet:
             self.gain_exp(exp_gain)
             return True, f"训练失败... 但宠物还是获得了{exp_gain}经验值"
     
-    def rest(self):
-        """休息/睡觉"""
-        if self.is_sleeping:
-            return False, "宠物已经在睡觉了..."
+    def rest(self, hours: int = 1):
+        """休息/睡觉
         
+        Args:
+            hours: 休息的小时数，默认 1 小时
+        """
+        if self.is_sleeping:
+            # 继续睡觉
+            recover_energy = hours * 10
+            self.energy = min(100, self.energy + recover_energy)
+            if self.energy >= 100:
+                self.wake_up()
+                return True, f"宠物休息了{hours}小时，精力完全恢复了！"
+            return True, f"宠物继续睡觉... 精力恢复中 ({self.energy}%)"
+        
+        # 开始休息
         self.is_sleeping = True
-        self.energy = min(100, self.energy + 50)
-        self.happiness = max(0, self.happiness - 5)  # 被打断可能会有点不开心
+        recover_energy = hours * 10
+        self.energy = min(100, self.energy + recover_energy)
         self._update_mood()
         
-        return True, "宠物开始睡觉了，精力正在恢复..."
+        if self.energy >= 100:
+            self.wake_up()
+            return True, f"宠物休息了{hours}小时，精力完全恢复了！"
+        return True, f"宠物开始休息，{hours}小时后精力恢复到{self.energy}%"
     
     def wake_up(self):
         """醒来"""
@@ -198,6 +231,18 @@ class Pet:
         self.health = min(100, self.health + 2)
         self._update_mood()
         return True, "宠物变得干净了！"
+    
+    def heal(self):
+        """治疗"""
+        if self.health >= 100:
+            return False, "宠物很健康，不需要治疗！"
+        
+        self.total_interactions += 1
+        heal_amount = 20
+        self.health = min(100, self.health + heal_amount)
+        self.happiness = max(0, self.happiness - 5)  # 治疗可能会有点不舒服
+        self._update_mood()
+        return True, f"治疗成功！健康值恢复了 {heal_amount} 点"
     
     def gain_exp(self, amount: int):
         """获得经验值"""
