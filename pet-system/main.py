@@ -3,7 +3,7 @@
 养成式宠物系统 - 主程序
 """
 from pet import Pet
-from storage import Storage
+from storage import PetStorage
 import time
 
 def display_pet_status(pet: Pet):
@@ -46,11 +46,11 @@ def main():
     """主函数"""
     print("🎉 欢迎来到养成式宠物系统！🎉")
     
-    storage = Storage()
+    storage = PetStorage()
     pet = None
     
     # 尝试加载已有存档
-    if storage.has_save():
+    if storage.exists():
         choice = input("\n发现存档，是否加载？(y/n): ").strip().lower()
         if choice == 'y':
             pet = storage.load()
