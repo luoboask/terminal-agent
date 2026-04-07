@@ -149,20 +149,20 @@ ${similarLines ? `找到相似的行：\n${similarLines}` : ''}`,
       const oldPreview = oldText.split('\n').slice(0, 3).join('\n');
       const newPreview = newText.split('\n').slice(0, 3).join('\n');
 
-      let content = `Successfully edited ${file_path}:\n`;
-      content += `Line ${lineNum}: replaced ${oldLines} lines with ${newLines} lines\n\n`;
+      let summary = `Successfully edited ${file_path}:\n`;
+      summary += `Line ${lineNum}: replaced ${oldLines} lines with ${newLines} lines\n\n`;
       
       if (oldLines <= 5 && newLines <= 5) {
         // 小变更显示完整内容
-        content += `Before:\n${oldPreview}\n\nAfter:\n${newPreview}`;
+        summary += `Before:\n${oldPreview}\n\nAfter:\n${newPreview}`;
       } else {
         // 大变更显示前 3 行预览
-        content += `Before (first 3 lines):\n${oldPreview}\n\nAfter (first 3 lines):\n${newPreview}`;
+        summary += `Before (first 3 lines):\n${oldPreview}\n\nAfter (first 3 lines):\n${newPreview}`;
       }
       
       return {
         success: true,
-        content: content,
+        content: summary,
       };
     } catch (err) {
       const error = err as Error;
