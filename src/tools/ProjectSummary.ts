@@ -53,7 +53,7 @@ export class ProjectSummaryTool extends BaseTool<Input> {
       const fileContents = include_content ? this.readFileContents(files, project_path) : [];
       
       // 生成总结报告
-      const report = this.generateReport(structure, stats, fileContents);
+      const report = this.generateReport(structure, stats, fileContents, project_path);
 
       return {
         success: true,
@@ -196,13 +196,16 @@ export class ProjectSummaryTool extends BaseTool<Input> {
       byExtension: Record<string, number>;
       largestFile: { path: string; lines: number; size: number };
     },
-    fileContents: Array<{ path: string; content: string; lines: number }>
+    fileContents: Array<{ path: string; content: string; lines: number }>,
+    projectPath: string
   ): string {
     const lines: string[] = [];
 
-    // 标题
+    // 标题和项目路径
     lines.push('📊 项目总结报告');
     lines.push('=' .repeat(50));
+    lines.push('');
+    lines.push(`📁 **项目路径**: ${projectPath}`);
     lines.push('');
 
     // 统计信息
