@@ -177,13 +177,16 @@ export class QwenProvider {
     let match;
     
     console.log(`[DEBUG] 开始解析工具调用，文本长度：${text.length}`);
+    console.log(`[DEBUG] 原始文本前 500 字符：${text.substring(0, 500)}...`);
     
     while ((match = toolCallRegex.exec(text)) !== null) {
       const toolName = match[1];
       const paramsStr = match[2];
       const args: Record<string, any> = {};
       
-      console.log(`[DEBUG] 提取工具：${toolName}`);
+      console.log(`[DEBUG] === 匹配到工具调用 ===`);
+      console.log(`[DEBUG] 工具名：${toolName}`);
+      console.log(`[DEBUG] 完整匹配：${match[0].substring(0, 200)}...`);
       console.log(`[DEBUG] 原始参数：${paramsStr.substring(0, 200)}...`);
       
       // 智能分割参数：考虑数组中的逗号

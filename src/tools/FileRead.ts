@@ -23,7 +23,21 @@ const FileReadInputSchema = z.object({
  */
 export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
   readonly name = 'file_read';
-  readonly description = '读取文件内容。支持单文件 (file_path) 或批量读取 (file_paths=["a.py", "b.py"])。支持指定行数和偏移量，适合读取大文件。文件大小限制 256KB，超过请使用 offset 和 limit 参数分块读取。';
+  readonly description = `读取文件内容。
+
+**使用方式：**
+1. 单文件：file_read(file_path="pet.py")
+2. 批量读取：file_read(file_paths=["pet.py", "main.py"])
+3. 大文件分块：file_read(file_path="large.py", offset=1, limit=500)
+
+**参数说明：**
+- file_path: 单个文件路径
+- file_paths: 多个文件路径数组
+- offset: 起始行号（从 1 开始）
+- limit: 读取行数限制（默认 2000）
+- maxLines: 每个文件最大行数（默认 1000）
+
+**文件大小限制：** 256KB，超过请分块读取`;
   readonly inputSchema = FileReadInputSchema;
 
   // 最大文件大小限制 (256KB - 参考 claude-code-learning)
@@ -59,7 +73,13 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
     if (filesToRead.length === 0) {
       return {
         success: false,
-        content: '❌ 缺少文件路径参数\n\n请提供 file_path 或 file_paths 参数',
+        content: `❌ 缺少文件路径参数
+
+**正确使用方式：**
+1. 单文件：file_read(file_path="pet.py")
+2. 批量读取：file_read(file_paths=["pet.py", "main.py"])
+3. 大文件分块：file_read(file_path="large.py", offset=1, limit=500)`,
+
         error: 'Missing file_path parameter',
       };
     }
@@ -91,9 +111,11 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
         success: false,
         content: `❌ 访问被拒绝
 
-📁 ${file_path}
+📁 文件路径：${file_path}
 
-❌ 错误：cannot access files outside current directory`,
+❌ 错误：文件必须在当前工作目录下
+
+💡 提示：请使用相对路径，如 "pet.py" 或 "pet-system/pet.py"`,
         error: `Access denied: cannot access files outside current directory`,
       };
     }
