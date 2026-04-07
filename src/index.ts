@@ -548,6 +548,9 @@ async function main() {
 8. Check if the task is already done before calling tools
 9. If a tool fails, TRY A DIFFERENT APPROACH, not the same thing again
 10. AVOID infinite loops: If you're doing the same action 3+ times, STOP and reassess
+11. AFTER reading a file, PROCESS the content or MOVE TO NEXT STEP - do NOT read it again unless explicitly asked
+12. ONE file read is usually enough - trust the first result and continue with the task
+13. If you've read a file 2+ times with same parameters, you're in a loop - STOP immediately
 
 🔧 TOOL USAGE REQUIREMENT:
 - When user asks to create/edit/read files, YOU MUST call the appropriate tool
@@ -610,6 +613,20 @@ async function main() {
    （进行分析，输出分析结果）
 ✅ 分析完成！
 ❌ 错误示范：继续重复读取同一个文件
+
+【示例 6】读取文件后继续下一步（重要！）
+用户：读取 pet.py 并总结功能
+助手：
+1. ⏺ file_read(file_path=pet.py)
+   ⎿ ✅ 文件预览 (381 行)
+2. ✅ 文件已读取，开始总结...
+   pet.py 包含以下功能：
+   - Pet 类定义
+   - 心情状态枚举
+   - 喂食、玩耍等方法
+✅ 总结完成！
+❌ 错误示范：再次读取 pet.py（重复读取）
+❌ 错误示范：第三次读取 pet.py（死循环）
 
 【示例 4】任务完成判断
 用户：帮我修复这个 bug
