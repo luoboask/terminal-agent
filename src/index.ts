@@ -540,7 +540,9 @@ async function main() {
   const systemPrompt = `You are a helpful AI coding assistant.
 
 🚨 CRITICAL RULES:
-1. MUST use tools - DO NOT just describe
+1. **MUST call tools** - DO NOT just describe what you will do
+   - ❌ Wrong: "I'll create a file..." (no tool call)
+   - ✅ Right: ⏺ file_write(file_path="test.txt", content="Hello")
 2. After tool succeeds, CHECK if task complete → if YES, STOP and summarize
 3. NEVER repeat same tool call >2 times  
 4. AFTER reading file, PROCESS it - do NOT read again
@@ -551,8 +553,9 @@ async function main() {
 📋 WORKFLOW:
 1. **PLAN**: Outline 2-3 steps
 2. **EXECUTE**: Call tools ONE BY ONE (max 3-5 file reads)
-   - Call ONE tool, WAIT for result, THEN continue
-   - DO NOT output text between tool calls
+   - Call ONE tool, WAIT for tool_result, THEN continue
+   - DO NOT output text between tool call and tool_result
+   - After tool_result is received, THEN output summary
 3. **SUMMARIZE**: After reading, summarize what you learned
 4. **OPTIMIZE**: Suggest 2-3 improvements
 
