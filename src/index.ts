@@ -223,12 +223,28 @@ function formatToolArgs(args: Record<string, unknown> | undefined): string {
     }
   }
   
-  // 如果没有优先参数，显示第一个参数
-  if (parts.length === 0) {
-    const firstKey = Object.keys(args)[0];
-    const firstVal = String(args[firstKey]);
-    const displayVal = firstVal.length > 30 ? firstVal.slice(0, 30) + '...' : firstVal;
-    parts.push(`${firstKey}=${displayVal}`);
+  // 特殊处理 content 参数（可能很长）
+  if (args.content !== undefined) {
+    const content = String(args.content);
+    const lines = content.split('\n');
+    if (lines.length > 1) {
+      // 多行内容，显示行数
+      parts.push(`content=${lines.length} lines`);
+    } else if (content.length > 50) {
+      // 长文本，显示长度
+      parts.push(`content=${content.length} chars`);
+    } else {
+      // 短文本，显示内容
+      parts.push(`content=${content}`);
+    }
+  }
+  
+  // 显示其他参数
+  const otherKeys = Object.keys(args).filter(k => !priorityKeys.includes(k) && k !== 'content');
+  for (const key of otherKeys.slice(0, 3)) { // 最多显示 3 个其他参数
+    const val = String(args[key]);
+    const displayVal = val.length > 20 ? val.slice(0, 20) + '...' : val;
+    parts.push(`${key}=${displayVal}`);
   }
   
   return parts.join(', ');
