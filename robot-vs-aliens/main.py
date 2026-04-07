@@ -63,14 +63,16 @@ class Robot(pygame.sprite.Sprite):
         self.lives = 3
         
     def move(self, keys):
-        """根据按键移动机器人"""
-        if keys[pygame.K_LEFT] and self.rect.left > 0:
+        """根据按键移动机器人（支持方向键和 WSAD）"""
+        # 左右移动（方向键 或 A/D 键）
+        if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and self.rect.left > 0:
             self.rect.x -= self.speed
-        if keys[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH:
+        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and self.rect.right < SCREEN_WIDTH:
             self.rect.x += self.speed
-        if keys[pygame.K_UP] and self.rect.top > 0:
+        # 上下移动（方向键 或 W/S 键）
+        if (keys[pygame.K_UP] or keys[pygame.K_w]) and self.rect.top > 0:
             self.rect.y -= self.speed
-        if keys[pygame.K_DOWN] and self.rect.bottom < SCREEN_HEIGHT:
+        if (keys[pygame.K_DOWN] or keys[pygame.K_s]) and self.rect.bottom < SCREEN_HEIGHT:
             self.rect.y += self.speed
 
 
@@ -327,8 +329,11 @@ class Game:
         # 更新所有精灵
         self.all_sprites.update()
         
-        # 玩家射击
+        # 玩家移动
         keys = pygame.key.get_pressed()
+        self.robot.move(keys)
+        
+        # 玩家射击
         if keys[pygame.K_SPACE]:
             self.shoot()
             
@@ -440,11 +445,11 @@ def main():
     print("🤖 机器人大战外星人 🛸")
     print("=" * 40)
     print("操作说明：")
-    print("  ← → ↑ ↓ : 移动机器人")
-    print("  空格键   : 射击")
-    print("  P 键     : 暂停游戏")
-    print("  Q 键     : 退出游戏")
-    print("  R 键     : 重新开始（游戏结束后）")
+    print("  ← → ↑ ↓ 或 W A S D : 移动机器人")
+    print("  空格键             : 射击")
+    print("  P 键               : 暂停游戏")
+    print("  Q 键               : 退出游戏")
+    print("  R 键               : 重新开始（游戏结束后）")
     print("=" * 40)
     
     game = Game()
