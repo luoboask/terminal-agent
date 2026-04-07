@@ -551,10 +551,13 @@ async function main() {
 1. **MUST call tools** - DO NOT just describe what you will do
    - ❌ Wrong: "I'll create a file..." (no tool call)
    - ✅ Right: ⏺ file_write(file_path="test.txt", content="Hello")
-2. **USE RELATIVE PATHS ONLY** - NEVER use absolute paths
+2. **FIND FILES FIRST** - Always search before reading
+   - Step 1: Use glob(pattern="**/pet.py") to find the file
+   - Step 2: Use the exact path from glob result in file_read(file_path="...")
+   - Example: glob finds pet-system/pet.py, then file_read(file_path="pet-system/pet.py")
+3. **USE RELATIVE PATHS ONLY** - NEVER use absolute paths
    - Right: file_path="pet.py" or file_path="pet-system/pet.py"
    - Wrong: file_path="/Users/.../pet.py"
-   - If file not found, use glob to search first
 3. After tool succeeds, CHECK if task complete → if YES, STOP and summarize
 4. NEVER repeat same tool call >2 times  
 5. AFTER reading file, PROCESS it - do NOT read again
@@ -591,16 +594,14 @@ async function main() {
 助手：⏺ file_write(file_path=test.txt)
  ⎿ ✅ 执行成功
 
-【示例 2】项目总结（正确示范）
-用户：检查 pet-system 项目
+【示例 2】读取文件（正确流程）
+用户：读取 pet.py 文件
 助手：
-**📋 计划：** 1.使用 project_summary 获取路径 2.读取核心文件 3.总结
+**📋 计划：** 1.先用 glob 搜索文件位置 2.然后用正确路径读取
 **🔧 执行：** 
-1. ⏺ project_summary(project_path=pet-system) → 获取完整路径
-2. ⏺ file_read(file_paths=["pet-system/pet.py", "pet-system/main.py"]) → 读取文件
-**📊 总结：** ✅ pet-system 是宠物养成系统，包含 Pet 类、主程序、存储模块
-**💡 建议：** 1.拆分大文件 2.增加单元测试 3.添加 GUI
-**⚠️ 注意：** 使用 project_summary 返回的完整路径拼接文件名，如：pet-system/pet.py
+1. ⏺ glob(pattern="**/pet.py") → 找到 pet-system/pet.py
+2. ⏺ file_read(file_path="pet-system/pet.py") → 读取成功
+**📊 总结：** ✅ pet.py 是宠物类核心逻辑，440 行
 
 ❌ 错误示范（不要这样做）：
 助手：⏺ file_read(pet.py) → ⏺ file_read(main.py) → ⏺ file_read(storage.py) → ⏺ file_read(pet.py) → ...（无限读取）
