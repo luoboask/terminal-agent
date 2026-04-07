@@ -148,34 +148,13 @@ ${flag === 'w' ? '🔄 模式：覆盖写入（第一块）' : '➕ 模式：追
       // 写入文件
       writeFileSync(absolutePath, fileContent, 'utf-8');
 
-      // 生成简化 diff
-      const diff = isUpdate 
-        ? this.generateSimpleDiff(originalContent!, fileContent)
-        : `+ 新建文件，${fileContent.length} 字符`;
-
-      // 读取文件前 8 行用于预览
+      // 简洁输出
       const lines = fileContent.split('\n');
-      const previewLines = lines.slice(0, 8);
       const totalLines = lines.length;
-
-      const action = isUpdate ? '✏️ 已更新' : '📝 已创建';
+      
       return {
         success: true,
-        content: `${action}
-
-📁 文件：${absolutePath}
-📏 大小：${fileContent.length} 字符
-📄 行数：${totalLines} 行
-
-${diff}`,
-        data: {
-          type: isUpdate ? 'update' : 'create',
-          filePath: absolutePath,
-          content: fileContent,
-          originalFile: originalContent,
-          previewLines: previewLines,
-          totalLines: totalLines,
-        },
+        content: `Wrote ${totalLines} lines to ${absolutePath}`,
       };
     } catch (error) {
       return {

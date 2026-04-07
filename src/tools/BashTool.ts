@@ -86,7 +86,7 @@ export class BashTool extends BaseTool<typeof BashInputSchema> {
       
       return {
         success: true,
-        content: `${output || '✅ 执行成功（无输出）'}`,
+        content: output || '(No content)',
       };
     } catch (err) {
       const error = err as Error & { code?: string | number; signal?: string };
