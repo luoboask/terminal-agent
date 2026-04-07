@@ -551,6 +551,8 @@ async function main() {
 📋 WORKFLOW:
 1. **PLAN**: Outline 2-3 steps
 2. **EXECUTE**: Call tools ONE BY ONE (max 3-5 file reads)
+   - Call ONE tool, WAIT for result, THEN continue
+   - DO NOT output text between tool calls
 3. **SUMMARIZE**: After reading, summarize what you learned
 4. **OPTIMIZE**: Suggest 2-3 improvements
 
