@@ -251,7 +251,7 @@ class Pet:
         while self.exp >= self.exp_to_next:
             self.level_up()
     
-    def level_up(self):
+undefined):
         """升级"""
         self.exp -= self.exp_to_next
         self.level += 1
@@ -332,22 +332,41 @@ class Pet:
     
     @classmethod
     def from_dict(cls, data: dict) -> "Pet":
-        """从字典反序列化"""
-        pet = cls(data["name"], PetType[data["pet_type"]])
-        pet.level = data["level"]
-        pet.exp = data["exp"]
-        pet.exp_to_next = data["exp_to_next"]
-        pet.hunger = data["hunger"]
-        pet.happiness = data["happiness"]
-        pet.health = data["health"]
-        pet.energy = data["energy"]
-        pet.cleanliness = data["cleanliness"]
-        pet.mood = PetMood[data["mood"]]
-        pet.is_sleeping = data["is_sleeping"]
-        pet.is_alive = data["is_alive"]
-        pet.birth_date = datetime.fromisoformat(data["birth_date"])
-        pet.total_interactions = data["total_interactions"]
-        pet.appearance = data["appearance"]
+        """从字典反序列化（支持缺失字段的容错处理）"""
+        # 确保必需字段存在
+        if "name" not in data:
+            data["name"] = "未知宠物"
+        if "pet_type" not in data:
+            data["pet_type"] = "DOG"
+        
+        pet = cls(data["name"], PetType.get(data["pet_type"], PetType.DOG))
+        pet.level = data.get("level", 1)
+        pet.exp = data.get("exp", 0)
+        pet.exp_to_next = data.get("exp_to_next", 100)
+        pet.hunger = data.get("hunger", 50)
+        pet.happiness = data.get("happiness", 70)
+        pet.health = data.get("health", 100)
+        pet.energy = data.get("energy", 80)
+        pet.cleanliness = data.get("cleanliness", 80)
+        pet.mood = PetMood.get(data.get("mood", "NORMAL"), PetMood.NORMAL)
+        pet.is_sleeping = data.get("is_sleeping", False)
+        pet.is_alive = data.get("is_alive", True)
+        
+        # 处理日期
+        if "birth_date" in data:
+            try:
+                pet.birth_date = datetime.fromisoformat(data["birth_date"])
+            except:
+                pet.birth_date = datetime.now()
+        else:
+            pet.birth_date = datetime.now()
+        
+        pet.total_interactions = data.get("total_interactions", 0)
+        
+        # 处理外观
+        default_appearance = {"size": "小", "color": "棕色", "accessory": None}
+        pet.appearance = data.get("appearance", default_appearance)
+        
         return pet
     
     def __str__(self):

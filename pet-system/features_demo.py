@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 """
-宠物系统测试脚本 - 非交互式测试
+宠物系统完整功能演示
 """
 from pet import Pet

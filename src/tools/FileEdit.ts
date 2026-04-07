@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { resolve } from 'path';
 import { z } from 'zod';
 import { BaseTool, ToolResult } from '../core/Tool.js';
 import { debug, warn } from '../utils/logger.js';
@@ -26,8 +27,8 @@ export class FileEditTool extends BaseTool<typeof FileEditInputSchema> {
   /**
    * 检查路径是否安全
    */
-  private isSafePath(path: string): boolean {
-    const resolved = require('path').resolve(path);
+  private isSafePath(filePath: string): boolean {
+    const resolved = resolve(filePath);
     const cwd = process.cwd();
     
     return resolved.startsWith(cwd);
