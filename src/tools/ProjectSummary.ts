@@ -7,7 +7,7 @@
 import { z } from 'zod';
 import { BaseTool, ToolResult } from '../core/Tool.js';
 import { readdirSync, readFileSync, statSync } from 'fs';
-import { join, extname } from 'path';
+import { join, extname, resolve } from 'path';
 
 const ProjectSummaryInputSchema = z.object({
   project_path: z.string().optional().describe('项目路径（默认当前目录）'),
@@ -32,8 +32,11 @@ export class ProjectSummaryTool extends BaseTool<Input> {
     } = input;
 
     try {
+      // 转换为绝对路径
+      const absolutePath = resolve(project_path);
+      
       // 收集项目文件
-      const files = this.collectFiles(project_path, file_extensions, max_files);
+      const files = this.collectFiles(absolutePath, file_extensions, max_files);
       
       if (files.length === 0) {
         return {
@@ -53,7 +56,7 @@ export class ProjectSummaryTool extends BaseTool<Input> {
       const fileContents = include_content ? this.readFileContents(files, project_path) : [];
       
       // 生成总结报告
-      const report = this.generateReport(structure, stats, fileContents, project_path);
+      const report = this.generateReport(structure, stats, fileContents, absolutePath);
 
       return {
         success: true,
