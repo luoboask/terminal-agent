@@ -121,7 +121,7 @@ export class QwenProvider {
         messages,
         temperature,
         max_tokens: maxTokens,
-        ...(tools && tools.length > 0 ? { tools, tool_choice: 'auto' } : {}),
+        ...(tools && tools.length > 0 ? { tools, tool_choice: 'required' } : {}),
       }),
     });
 
@@ -132,6 +132,8 @@ export class QwenProvider {
 
     const data = QwenResponseSchema.parse(await response.json());
     const message = data.choices[0].message;
+
+    console.log(`[DEBUG] API 响应：tool_calls=${message.tool_calls?.length || 0}, content=${message.content?.substring(0, 100)}...`);
 
     // AI 执行模式：从文本响应中解析工具调用
     const toolCalls: ToolCall[] = [];
@@ -169,39 +171,52 @@ export class QwenProvider {
    */
   extractToolCallsFromText(text: string): ToolCall[] {
     const toolCalls: ToolCall[] = [];
-    const toolCallRegex = /⏺\s*(\w+)\(([\s\S]*?)\)(?=\s*(?:⏺|$|\n))/g;
+    // 支持多种工具调用格式：⏺ 或 ⏺ 或 ▶
+    const toolCallRegex = /[⏺▶]\s*(\w+)\(([\s\S]*?)\)(?=\s*(?:[⏺▶]|$|\n))/g;
     let match;
+    
+    console.log(`[DEBUG] 开始解析工具调用，文本长度：${text.length}`);
     
     while ((match = toolCallRegex.exec(text)) !== null) {
       const toolName = match[1];
       const paramsStr = match[2];
       const args: Record<string, any> = {};
       
+      console.log(`[DEBUG] 提取工具：${toolName}`);
+      console.log(`[DEBUG] 原始参数：${paramsStr.substring(0, 200)}...`);
+      
       // 智能分割参数：考虑数组中的逗号
       const pairs = this.smartSplitParams(paramsStr);
+      console.log(`[DEBUG] 分割后的参数对：${JSON.stringify(pairs)}`);
       
       for (const pair of pairs) {
         const [key, ...valueParts] = pair.split('=');
         if (key && valueParts.length > 0) {
           let value = valueParts.join('=').trim();
+          console.log(`[DEBUG]   参数 ${key} = ${value.substring(0, 100)}...`);
           
           // 处理数组格式：["a", "b", "c"] 或 [a, b, c]
           if (value.startsWith('[') && value.endsWith(']')) {
             const arrayContent = value.slice(1, -1);
             const items = arrayContent.split(/,\s*/).map(item => item.trim().replace(/^["']|["']$/g, ''));
             value = items;
+            console.log(`[DEBUG]   解析为数组：${JSON.stringify(value)}`);
           } else {
             // 普通值
             value = value.replace(/^["']|["']$/g, '');
             value = value === 'true' ? true : value === 'false' ? false : /^\d+$/.test(value) ? parseInt(value) : value;
+            console.log(`[DEBUG]   解析为值：${value}`);
           }
           
           args[key.trim()] = value;
         }
       }
+      
+      console.log(`[DEBUG] 最终参数对象：${JSON.stringify(args)}`);
       toolCalls.push({ id: `text_${Date.now()}_${toolCalls.length}`, name: toolName, arguments: args });
     }
     
+    console.log(`[DEBUG] 提取完成，共 ${toolCalls.length} 个工具调用`);
     return toolCalls;
   }
 

@@ -52,6 +52,10 @@ class Pet:
         self.total_interactions = 0
         self.favorite_food = None
         
+        # 经济系统
+        self.coins = 100  # 初始金币
+        self.inventory = []  # 物品栏
+        
         # 外观
         self.appearance = self._get_initial_appearance()
         self._age = 0  # 年龄（天数）
@@ -251,7 +255,7 @@ class Pet:
         while self.exp >= self.exp_to_next:
             self.level_up()
     
-undefined):
+    def level_up(self):
         """升级"""
         self.exp -= self.exp_to_next
         self.level += 1
@@ -260,6 +264,42 @@ undefined):
         # 升级奖励
         self.health = min(100, self.health + 10)
         self.energy = min(100, self.energy + 10)
+    
+    def check_level_up(self):
+        """检查是否可以升级，返回是否升级"""
+        if self.exp >= self.exp_to_next:
+            self.level_up()
+            return True
+        return False
+    
+    def use_item(self, item):
+        """使用物品"""
+        if item not in self.inventory:
+            return False, "物品不在背包中"
+        
+        # 根据物品类型产生效果
+        if hasattr(item, 'item_type'):
+            if item.item_type.value == "食物":
+                effect = item.effect if hasattr(item, 'effect') else {"hunger": 20, "health": 5}
+                self.hunger = min(100, self.hunger + effect.get("hunger", 0))
+                self.health = min(100, self.health + effect.get("health", 0))
+                self.inventory.remove(item)
+                return True, f"使用了{item.name}，饱食度+{effect.get('hunger', 0)}"
+            elif item.item_type.value == "玩具":
+                effect = item.effect if hasattr(item, 'effect') else {"happiness": 15}
+                self.happiness = min(100, self.happiness + effect.get("happiness", 0))
+                self.inventory.remove(item)
+                return True, f"使用了{item.name}，心情+{effect.get('happiness', 0)}"
+            elif item.item_type.value == "药品":
+                effect = item.effect if hasattr(item, 'effect') else {"health": 30}
+                self.health = min(100, self.health + effect.get("health", 0))
+                self.inventory.remove(item)
+                return True, f"使用了{item.name}，健康+{effect.get('health', 0)}"
+            elif item.item_type.value == "装饰":
+                self.inventory.remove(item)
+                return True, f"使用了{item.name}，装饰已应用"
+        
+        return False, "无法使用该物品"
     
     def pass_time(self, hours: int = 1):
         """时间流逝效果"""

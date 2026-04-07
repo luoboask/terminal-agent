@@ -137,10 +137,10 @@ export class QueryEngine {
             const previousReads = Array.from(this.readFilePaths).filter(p => p.endsWith(fileName));
             if (previousReads.length >= this.MAX_FILE_READS) {
               warn(`⚠️ 文件 ${fileName} 已读取 ${previousReads.length} 次，阻止重复读取`);
+              // 使用 assistant 角色而不是 tool 角色，避免 Qwen API 验证错误
               this.messages.push({
-                role: 'tool',
-                tool_call_id: toolCall.id,
-                content: `❌ 阻止重复读取：文件 ${fileName} 已经读取过 ${previousReads.length} 次了，请开始总结分析，不要重复读取`,
+                role: 'assistant',
+                content: `⚠️ 文件 ${fileName} 已经读取过 ${previousReads.length} 次了，请开始总结分析，不要重复读取`,
               });
               yield {
                 type: 'tool_result',
@@ -167,9 +167,9 @@ export class QueryEngine {
               warn(`⚠️ 已读取 ${consecutiveCount} 次文件，请开始总结分析，不要继续读取`);
             }
             if (consecutiveCount >= threshold) {
+              // 使用 assistant 角色而不是 tool 角色，避免 Qwen API 验证错误
               this.messages.push({
-                role: 'tool',
-                tool_call_id: toolCall.id,
+                role: 'assistant',
                 content: `错误：检测到重复工具调用循环。连续 ${consecutiveCount} 次调用相同的工具 "${toolCall.name}" 且参数相同。请尝试其他方法或修改参数。`,
               });
               yield {
