@@ -148,13 +148,24 @@ ${flag === 'w' ? '🔄 模式：覆盖写入（第一块）' : '➕ 模式：追
       // 写入文件
       writeFileSync(absolutePath, fileContent, 'utf-8');
 
-      // 简洁输出
+      // 平衡输出：简洁但有预览
       const lines = fileContent.split('\n');
       const totalLines = lines.length;
+      const preview = lines.slice(0, 5).join('\n');
+      
+      let content = `Wrote ${totalLines} lines to ${absolutePath}`;
+      
+      if (totalLines <= 20) {
+        // 小文件显示完整内容
+        content += `\n\n${fileContent}`;
+      } else {
+        // 大文件显示前 5 行预览
+        content += `\n\nPreview:\n${preview}\n… (+${totalLines - 5} more lines)`;
+      }
       
       return {
         success: true,
-        content: `Wrote ${totalLines} lines to ${absolutePath}`,
+        content: content,
       };
     } catch (error) {
       return {

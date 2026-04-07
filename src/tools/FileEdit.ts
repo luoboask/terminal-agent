@@ -140,15 +140,29 @@ ${similarLines ? `找到相似的行：\n${similarLines}` : ''}`,
       // 写入文件
       writeFileSync(file_path, newContent, 'utf-8');
 
-      // 简洁输出
+      // 平衡输出：显示变更和预览
       const oldLines = oldText.split('\n').length;
       const newLines = newText.split('\n').length;
       const lineNum = content.slice(0, matchIndex).split('\n').length;
+      
+      // 提取变更预览
+      const oldPreview = oldText.split('\n').slice(0, 3).join('\n');
+      const newPreview = newText.split('\n').slice(0, 3).join('\n');
 
+      let content = `Successfully edited ${file_path}:\n`;
+      content += `Line ${lineNum}: replaced ${oldLines} lines with ${newLines} lines\n\n`;
+      
+      if (oldLines <= 5 && newLines <= 5) {
+        // 小变更显示完整内容
+        content += `Before:\n${oldPreview}\n\nAfter:\n${newPreview}`;
+      } else {
+        // 大变更显示前 3 行预览
+        content += `Before (first 3 lines):\n${oldPreview}\n\nAfter (first 3 lines):\n${newPreview}`;
+      }
+      
       return {
         success: true,
-        content: `Successfully edited ${file_path}:\n` +
-                 `Line ${lineNum}: replaced ${oldLines} lines with ${newLines} lines`,
+        content: content,
       };
     } catch (err) {
       const error = err as Error;

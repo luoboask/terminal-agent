@@ -131,7 +131,7 @@ file_read({ file_path: "${file_path}", offset: 2001, limit: 2000 })`,
         output += `\n\n[... 还有 ${totalLines - endIndex} 行未显示，使用 offset=${endIndex + 1} 继续读取 ...]`;
       }
 
-      // 简洁输出：只显示内容，不添加额外格式
+      // 直接返回文件内容
       return {
         success: true,
         content: output,
