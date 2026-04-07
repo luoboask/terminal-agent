@@ -126,12 +126,12 @@ export class QueryEngine {
           // 检测重复调用
           if (this.isRepeatedToolCall(toolCall.name, toolCall.arguments)) {
             warn(`⚠️ 重复工具调用：${toolCall.name}`);
-            // 如果是连续第 2 次相同调用，警告；第 3 次阻止并返回错误
+            // 如果是连续第 2 次相同调用，警告；第 50 次阻止并返回错误
             const consecutiveCount = this.getConsecutiveCallCount(toolCall.name, toolCall.arguments);
             if (consecutiveCount >= 2) {
               warn(`⚠️ 重复工具调用警告：连续 ${consecutiveCount} 次调用 "${toolCall.name}"`);
             }
-            if (consecutiveCount >= 3) {
+            if (consecutiveCount >= 50) {
               this.messages.push({
                 role: 'tool',
                 tool_call_id: toolCall.id,
@@ -139,7 +139,7 @@ export class QueryEngine {
               });
               yield {
                 type: 'tool_result',
-                content: `❌ 阻止重复调用：连续 ${consecutiveCount} 次相同调用`,
+                content: `❌ 阻止重复调用：连续 ${consecutiveCount} 次相同调用（阈值：50 次）`,
                 toolName: toolCall.name,
               };
               continue;
