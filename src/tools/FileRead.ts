@@ -65,42 +65,21 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
   async execute(input: z.infer<typeof FileReadInputSchema>): Promise<ToolResult> {
     const { file_path, maxLines = 1000, offset = 1, limit = 2000 } = input;
 
-    // 单文件读取（已移除批量读取支持，因为 Qwen 模型不支持数组参数）
-    const filesToRead = file_path ? [file_path] : [];
-    
     // 检查必要参数
-    if (filesToRead.length === 0) {
+    if (!file_path) {
       return {
         success: false,
         content: `❌ 缺少文件路径参数
 
 **正确使用方式：**
-1. 单文件：file_read(file_path="pet.py")
-3. 大文件分块：file_read(file_path="large.py", offset=1, limit=500)`,
-
+file_read(file_path="pet.py")
+file_read(file_path="pet-system/pet.py")`,
         error: 'Missing file_path parameter',
       };
     }
 
-    // 批量读取多个文件
-    if (filesToRead.length > 1) {
-      const results: string[] = [];
-      for (const filePath of filesToRead) {
-        const result = await this.readSingleFile(filePath, maxLines, offset, limit);
-        if (result.success) {
-          results.push(`📄 ${filePath}:\n${result.content}`);
-        } else {
-          results.push(`❌ ${filePath}: ${result.error}`);
-        }
-      }
-      return {
-        success: true,
-        content: results.join('\n\n---\n\n'),
-      };
-    }
-
     // 单个文件读取
-    const filePath = filesToRead[0];
+    const filePath = file_path;
     debug(`FileRead reading: ${filePath}`);
 
     // 安全检查
@@ -118,15 +97,21 @@ export class FileReadTool extends BaseTool<typeof FileReadInputSchema> {
       };
     }
 
-    // 检查文件是否存在
+    // 检查文件是否存在（先检查相对路径）
     if (!existsSync(file_path)) {
+      // 尝试提供建议
+      let suggestion = '';
+      if (file_path.includes('/')) {
+        suggestion = `\n\n💡 提示：请检查路径是否正确，文件可能在子目录中`;
+      } else {
+        suggestion = `\n\n💡 提示：文件可能不在当前目录，请使用完整路径如 "pet-system/pet.py"`;
+      }
+      
       return {
         success: false,
         content: `❌ 文件未找到
 
-📁 ${file_path}
-
-❌ 错误：File not found`,
+📁 请求路径：${file_path}${suggestion}`,
         error: `File not found: ${file_path}`,
       };
     }
