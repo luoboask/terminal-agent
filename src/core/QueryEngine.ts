@@ -85,7 +85,7 @@ export class QueryEngine {
       const tools = QwenProvider.buildTools(this.config.toolRegistry);
 
       // 最大工具调用轮数（防止无限循环）
-      const MAX_TURNS = 15;  // 增加到 15 轮，支持复杂任务
+      const MAX_TURNS = 1000;  // 增加到 1000 轮，支持复杂多步骤任务
       
       for (let turn = 0; turn < MAX_TURNS; turn++) {
         debug(`Turn ${turn + 1}/${MAX_TURNS}`);
